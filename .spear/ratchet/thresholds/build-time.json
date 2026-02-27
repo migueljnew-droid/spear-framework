@@ -1,0 +1,9 @@
+{
+  "id": "max_build_time",
+  "name": "Maximum Build Time",
+  "direction": "ceiling",
+  "value": 120,
+  "unit": "seconds",
+  "measurement": "Time a full build from clean state in seconds",
+  "history": []
+}

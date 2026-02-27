@@ -1,0 +1,9 @@
+{
+  "id": "doc_coverage",
+  "name": "Documentation Coverage",
+  "direction": "floor",
+  "value": 60,
+  "unit": "percent",
+  "measurement": "Count documented public items vs total public items",
+  "history": []
+}

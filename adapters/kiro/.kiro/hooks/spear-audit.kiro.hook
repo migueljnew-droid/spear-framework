@@ -1,0 +1,6 @@
+{
+  "name": "SPEAR Audit",
+  "trigger": "onFileSave",
+  "match": ["**/*.ts", "**/*.js", "**/*.rs", "**/*.py", "**/*.go", "**/*.java", "**/*.tsx", "**/*.jsx"],
+  "action": "Review this file change against SPEAR audit categories: security, dependencies, performance, code quality, documentation, architecture. Report any findings with severity levels. Severity: CRITICAL (must fix, no override), HIGH (fix or justify), MEDIUM (fix soon), LOW (track), INFO (observation). Check specifically for: hardcoded secrets, injection vulnerabilities, input validation gaps, error handling completeness, test coverage, naming clarity, function length (>50 lines), dead code, and pattern consistency with existing codebase. Reference .spear/ratchet/ratchet.json for threshold constraints."
+}

@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+# =============================================================================
+# SPEAR Framework — commit-msg hook
+# =============================================================================
+# Enforces Conventional Commits format:
+#   type(scope): description
+#   type: description
+#
+# Valid types:
+#   feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+#
+# Rules:
+#   - Description starts lowercase
+#   - Description does not end with a period
+#   - Optional body after blank line
+# =============================================================================
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Color helpers
+# ---------------------------------------------------------------------------
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    CYAN='\033[0;36m'
+    BOLD='\033[1m'
+    RESET='\033[0m'
+else
+    RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
+fi
+
+# ---------------------------------------------------------------------------
+# Read commit message
+# ---------------------------------------------------------------------------
+COMMIT_MSG_FILE="${1:-}"
+if [ -z "$COMMIT_MSG_FILE" ] || [ ! -f "$COMMIT_MSG_FILE" ]; then
+    printf "${RED}[SPEAR] commit-msg: no commit message file provided${RESET}\n"
+    exit 1
+fi
+
+# Read only the first line (subject) — strip comments and leading whitespace
+SUBJECT=""
+while IFS= read -r line; do
+    # Skip git comments
+    case "$line" in
+        \#*) continue ;;
+    esac
+    # Skip empty leading lines
+    if [ -z "$SUBJECT" ] && [ -z "$(echo "$line" | tr -d '[:space:]')" ]; then
+        continue
+    fi
+    SUBJECT="$line"
+    break
+done < "$COMMIT_MSG_FILE"
+
+if [ -z "$SUBJECT" ]; then
+    printf "${RED}[SPEAR] commit-msg: FAIL %s${RESET}\n" "✗"
+    printf "${RED}[SPEAR]   Empty commit message.${RESET}\n"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Valid types
+# ---------------------------------------------------------------------------
+VALID_TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+
+# ---------------------------------------------------------------------------
+# Regex validation
+# ---------------------------------------------------------------------------
+# Pattern: type(optional-scope): lowercase-start description
+# We validate in steps for better error messages.
+
+ERRORS=()
+
+# Step 1: Check basic structure — type portion
+TYPE_PATTERN="^(${VALID_TYPES})"
+if ! echo "$SUBJECT" | grep -Eq "$TYPE_PATTERN"; then
+    # Extract what they wrote as the type
+    GIVEN_TYPE=$(echo "$SUBJECT" | sed -n 's/^\([a-zA-Z]*\).*/\1/p')
+    if [ -n "$GIVEN_TYPE" ]; then
+        ERRORS+=("Invalid type '${GIVEN_TYPE}'. Must be one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert")
+    else
+        ERRORS+=("Commit message must start with a valid type (e.g., feat, fix, docs)")
+    fi
+fi
+
+# Step 2: Check for colon separator (with optional scope)
+COLON_PATTERN="^(${VALID_TYPES})(\([a-zA-Z0-9._/ -]+\))?:[[:space:]]"
+if [ "${#ERRORS[@]}" -eq 0 ]; then
+    if ! echo "$SUBJECT" | grep -Eq "$COLON_PATTERN"; then
+        # Check if they forgot the space after colon
+        if echo "$SUBJECT" | grep -Eq "^(${VALID_TYPES})(\([a-zA-Z0-9._/ -]+\))?:[^[:space:]]"; then
+            ERRORS+=("Missing space after colon. Use 'type: description' not 'type:description'")
+        # Check if scope has invalid chars
+        elif echo "$SUBJECT" | grep -Eq "^(${VALID_TYPES})\("; then
+            ERRORS+=("Invalid scope format. Scope must contain only alphanumeric, dots, slashes, hyphens, spaces")
+        else
+            ERRORS+=("Missing colon after type. Format: 'type: description' or 'type(scope): description'")
+        fi
+    fi
+fi
+
+# Step 3: Check description starts lowercase
+if [ "${#ERRORS[@]}" -eq 0 ]; then
+    DESC=$(echo "$SUBJECT" | sed -n "s/^[a-z]*\(([^)]*)\)\{0,1\}: *//p")
+    if [ -z "$DESC" ]; then
+        ERRORS+=("Missing description after 'type: '")
+    else
+        FIRST_CHAR=$(printf '%s' "$DESC" | cut -c1)
+        if echo "$FIRST_CHAR" | grep -q '[A-Z]'; then
+            ERRORS+=("Description must start with a lowercase letter, got '${FIRST_CHAR}'")
+        fi
+    fi
+fi
+
+# Step 4: Check description does not end with period
+if [ "${#ERRORS[@]}" -eq 0 ] && [ -n "$DESC" ]; then
+    LAST_CHAR=$(printf '%s' "$DESC" | sed 's/.*\(.\)$/\1/')
+    if [ "$LAST_CHAR" = "." ]; then
+        ERRORS+=("Description must not end with a period")
+    fi
+fi
+
+# Step 5: Subject line length (soft warning at 72, hard limit at 100)
+SUBJECT_LEN=${#SUBJECT}
+WARNINGS=()
+if [ "$SUBJECT_LEN" -gt 100 ]; then
+    ERRORS+=("Subject line is ${SUBJECT_LEN} characters (max 100)")
+elif [ "$SUBJECT_LEN" -gt 72 ]; then
+    WARNINGS+=("Subject line is ${SUBJECT_LEN} characters (recommended max 72)")
+fi
+
+# ---------------------------------------------------------------------------
+# Report results
+# ---------------------------------------------------------------------------
+if [ "${#ERRORS[@]}" -gt 0 ]; then
+    printf "\n${RED}${BOLD}[SPEAR] commit-msg: FAIL %s${RESET}\n" "✗"
+    printf "${RED}[SPEAR]   Subject: %s${RESET}\n" "$SUBJECT"
+    printf "\n"
+    for err in "${ERRORS[@]}"; do
+        printf "${RED}[SPEAR]   %s %s${RESET}\n" "✗" "$err"
+    done
+    printf "\n"
+    printf "${CYAN}[SPEAR]   Conventional Commits format:${RESET}\n"
+    printf "${CYAN}[SPEAR]     type(scope): description${RESET}\n"
+    printf "${CYAN}[SPEAR]     type: description${RESET}\n"
+    printf "\n"
+    printf "${CYAN}[SPEAR]   Valid types:${RESET}\n"
+    printf "${CYAN}[SPEAR]     feat     — new feature${RESET}\n"
+    printf "${CYAN}[SPEAR]     fix      — bug fix${RESET}\n"
+    printf "${CYAN}[SPEAR]     docs     — documentation only${RESET}\n"
+    printf "${CYAN}[SPEAR]     style    — formatting, no code change${RESET}\n"
+    printf "${CYAN}[SPEAR]     refactor — restructure without behavior change${RESET}\n"
+    printf "${CYAN}[SPEAR]     perf     — performance improvement${RESET}\n"
+    printf "${CYAN}[SPEAR]     test     — add or fix tests${RESET}\n"
+    printf "${CYAN}[SPEAR]     build    — build system or dependencies${RESET}\n"
+    printf "${CYAN}[SPEAR]     ci       — CI configuration${RESET}\n"
+    printf "${CYAN}[SPEAR]     chore    — other maintenance${RESET}\n"
+    printf "${CYAN}[SPEAR]     revert   — revert a previous commit${RESET}\n"
+    printf "\n"
+    printf "${CYAN}[SPEAR]   Examples:${RESET}\n"
+    printf "${CYAN}[SPEAR]     feat(auth): add OAuth2 login flow${RESET}\n"
+    printf "${CYAN}[SPEAR]     fix: resolve null pointer in parser${RESET}\n"
+    printf "${CYAN}[SPEAR]     docs: update API reference for v2${RESET}\n"
+    printf "${CYAN}[SPEAR]     refactor(db): extract connection pool module${RESET}\n"
+    printf "\n"
+    exit 1
+fi
+
+# Print warnings if any
+for warn in "${WARNINGS[@]:-}"; do
+    if [ -n "$warn" ]; then
+        printf "${YELLOW}[SPEAR] commit-msg: WARNING — %s${RESET}\n" "$warn"
+    fi
+done
+
+printf "${GREEN}[SPEAR] commit-msg: PASS %s${RESET}\n" "✓"
+exit 0

@@ -1,0 +1,9 @@
+{
+  "id": "max_bundle_size",
+  "name": "Maximum Bundle Size",
+  "direction": "ceiling",
+  "value": 500,
+  "unit": "kb",
+  "measurement": "Measure total output bundle size in kilobytes",
+  "history": []
+}

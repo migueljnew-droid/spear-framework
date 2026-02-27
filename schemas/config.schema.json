@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/migueljnew-droid/spear-framework/main/schemas/config.schema.json",
+  "title": "SPEAR Framework Configuration",
+  "description": "Configuration schema for the SPEAR (Spec, Plan, Execute, Audit, Ratchet) development framework.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for IDE auto-completion."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SPEAR config format version (semver).",
+      "default": "1.0.0"
+    },
+    "project": {
+      "type": "object",
+      "description": "Project metadata.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name. Used in reports and commit messages."
+        },
+        "language": {
+          "type": "string",
+          "enum": ["auto", "rust", "typescript", "javascript", "python", "go", "ruby", "java", "unknown"],
+          "default": "auto",
+          "description": "Primary language. 'auto' detects from project files."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short project description for context in specs and audits."
+        }
+      },
+      "additionalProperties": false
+    },
+    "phases": {
+      "type": "object",
+      "description": "Phase configuration. Each phase can be enabled/disabled and require approval gates.",
+      "properties": {
+        "spec": { "$ref": "#/$defs/phaseConfig" },
+        "plan": { "$ref": "#/$defs/phaseConfig" },
+        "execute": { "$ref": "#/$defs/phaseConfig" },
+        "audit": { "$ref": "#/$defs/phaseConfig" },
+        "ratchet": { "$ref": "#/$defs/phaseConfig" }
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "description": "Audit system configuration.",
+      "properties": {
+        "categories": {
+          "type": "object",
+          "description": "The 6 audit categories. Each can be enabled/disabled with a blocking severity.",
+          "properties": {
+            "security": { "$ref": "#/$defs/auditCategory" },
+            "dependencies": { "$ref": "#/$defs/auditCategory" },
+            "performance": { "$ref": "#/$defs/auditCategory" },
+            "code_quality": { "$ref": "#/$defs/auditCategory" },
+            "documentation": { "$ref": "#/$defs/auditCategory" },
+            "architecture": { "$ref": "#/$defs/auditCategory" }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/auditCategory",
+            "description": "Custom audit categories follow the same schema."
+          }
+        },
+        "parallel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run audit categories in parallel. Disable for sequential execution."
+        },
+        "auto_fix": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically apply safe fixes for LOW/MEDIUM findings."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ratchet": {
+      "type": "object",
+      "description": "Ratchet (self-improvement) configuration.",
+      "properties": {
+        "auto_tighten": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically tighten thresholds when metrics improve beyond the improvement threshold."
+        },
+        "tighten_buffer_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 50,
+          "default": 2,
+          "description": "Buffer subtracted from the new metric value when auto-tightening. Prevents brittleness."
+        },
+        "improvement_threshold_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 5,
+          "description": "Minimum improvement over current threshold before auto-tightening triggers."
+        },
+        "require_justification_to_loosen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require a written justification when lowering a floor or raising a ceiling."
+        }
+      },
+      "additionalProperties": false
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Git hook configuration. Each hook can be individually enabled/disabled.",
+      "properties": {
+        "pre_commit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run pre-commit checks (dispatches enabled checkers)."
+        },
+        "commit_msg": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate commit message format (conventional commits)."
+        },
+        "secrets_scan": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan staged files for secrets, API keys, and tokens."
+        },
+        "lint_check": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run language-appropriate linter on staged files."
+        },
+        "fitness_check": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run active fitness functions and check against ratchet thresholds."
+        },
+        "dependency_audit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for known vulnerabilities in dependencies."
+        },
+        "doc_coverage": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check documentation coverage against threshold."
+        },
+        "test_gate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run test suite and check coverage against threshold."
+        }
+      },
+      "additionalProperties": false
+    },
+    "memory": {
+      "type": "object",
+      "description": "Project memory system configuration.",
+      "properties": {
+        "backend": {
+          "type": "string",
+          "enum": ["json", "sqlite", "qdrant"],
+          "default": "json",
+          "description": "Storage backend. 'json' is zero-dependency. 'sqlite' and 'qdrant' are upgrade paths."
+        },
+        "auto_index": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically update memory/index.json when entries are added."
+        },
+        "max_entries_per_category": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 10000,
+          "default": 500,
+          "description": "Maximum entries per memory category before auto-archiving oldest."
+        }
+      },
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "string",
+      "enum": ["auto", "claude-code", "cursor", "copilot", "antigravity", "kiro", "generic"],
+      "default": "auto",
+      "description": "AI tool adapter. 'auto' detects from project files."
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false,
+  "$defs": {
+    "phaseConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this phase is active."
+        },
+        "require_approval": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this phase requires explicit human approval before proceeding."
+        }
+      },
+      "additionalProperties": false
+    },
+    "auditCategory": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this audit category is active."
+        },
+        "block_on": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"],
+          "default": "CRITICAL",
+          "description": "Minimum severity level that blocks progression."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

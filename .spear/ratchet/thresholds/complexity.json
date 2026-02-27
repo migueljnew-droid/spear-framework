@@ -1,0 +1,9 @@
+{
+  "id": "max_complexity",
+  "name": "Maximum Cyclomatic Complexity",
+  "direction": "ceiling",
+  "value": 20,
+  "unit": "cyclomatic",
+  "measurement": "Measure cyclomatic complexity per function and report the maximum",
+  "history": []
+}

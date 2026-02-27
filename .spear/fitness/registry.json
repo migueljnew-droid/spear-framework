@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "functions": [
+    {
+      "id": "no-circular-deps",
+      "name": "No Circular Dependencies",
+      "script": "fitness/examples/no-circular-deps.sh",
+      "category": "architecture",
+      "enabled": true
+    },
+    {
+      "id": "test-coverage",
+      "name": "Test Coverage",
+      "script": "fitness/examples/test-coverage.sh",
+      "category": "quality",
+      "enabled": true
+    },
+    {
+      "id": "bundle-size",
+      "name": "Bundle Size",
+      "script": "fitness/examples/bundle-size.sh",
+      "category": "performance",
+      "enabled": false
+    },
+    {
+      "id": "api-response-time",
+      "name": "API Response Time",
+      "script": "fitness/examples/api-response-time.sh",
+      "category": "performance",
+      "enabled": false
+    },
+    {
+      "id": "layer-boundaries",
+      "name": "Layer Boundary Enforcement",
+      "script": "fitness/examples/layer-boundaries.sh",
+      "category": "architecture",
+      "enabled": false
+    }
+  ]
+}

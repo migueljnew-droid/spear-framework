@@ -1,0 +1,9 @@
+{
+  "id": "test_coverage",
+  "name": "Test Coverage",
+  "direction": "floor",
+  "value": 70,
+  "unit": "percent",
+  "measurement": "Run test coverage tool and parse percentage",
+  "history": []
+}

@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+# =============================================================================
+# SPEAR Framework — pre-commit hook (main dispatcher)
+# =============================================================================
+# Runs all enabled checkers from .spear/config.json in sequence, collects
+# results, prints a summary table, and exits non-zero if any checker failed.
+#
+# Environment:
+#   SPEAR_SKIP=1    Bypass all checks (prints warning)
+#   NO_COLOR=1      Disable color output
+# =============================================================================
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Color helpers (respects NO_COLOR)
+# ---------------------------------------------------------------------------
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    CYAN='\033[0;36m'
+    BOLD='\033[1m'
+    RESET='\033[0m'
+else
+    RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
+fi
+
+# ---------------------------------------------------------------------------
+# Locate project root (where .git lives)
+# ---------------------------------------------------------------------------
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+    echo "[SPEAR] ERROR: not inside a git repository"
+    exit 1
+}
+
+SPEAR_DIR="${PROJECT_ROOT}/.spear"
+CONFIG_FILE="${SPEAR_DIR}/config.json"
+HOOKS_DIR="$(cd "$(dirname "$0")" && pwd)"
+CHECKERS_DIR="${HOOKS_DIR}/checkers"
+
+# ---------------------------------------------------------------------------
+# Skip gate
+# ---------------------------------------------------------------------------
+if [ "${SPEAR_SKIP:-0}" = "1" ]; then
+    printf "${YELLOW}[SPEAR] WARNING: pre-commit checks SKIPPED (SPEAR_SKIP=1)${RESET}\n"
+    printf "${YELLOW}[SPEAR] This is intended for emergencies only.${RESET}\n"
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Read enabled checkers from .spear/config.json
+# ---------------------------------------------------------------------------
+# Returns a space-separated list of enabled checker names.
+# Tries: python3, node, jq, then grep fallback.
+# ---------------------------------------------------------------------------
+read_enabled_checkers() {
+    local cfg="$1"
+
+    # Guard: no config file => run all checkers as default
+    if [ ! -f "$cfg" ]; then
+        echo "secrets-scan lint-check fitness-check dependency-audit doc-coverage test-gate"
+        return 0
+    fi
+
+    # --- python3 -------------------------------------------------------
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c "
+import json, sys
+try:
+    data = json.load(open('$cfg'))
+    hooks = data.get('hooks', {})
+    enabled = []
+    for name, settings in hooks.items():
+        if isinstance(settings, dict) and settings.get('enabled', True):
+            enabled.append(name)
+        elif isinstance(settings, bool) and settings:
+            enabled.append(name)
+    print(' '.join(enabled) if enabled else '')
+except Exception:
+    sys.exit(1)
+" 2>/dev/null && return 0
+    fi
+
+    # --- node ----------------------------------------------------------
+    if command -v node >/dev/null 2>&1; then
+        node -e "
+try {
+    const d = JSON.parse(require('fs').readFileSync('$cfg','utf8'));
+    const h = d.hooks || {};
+    const e = Object.entries(h)
+        .filter(([,v]) => (typeof v === 'object' ? v.enabled !== false : v === true))
+        .map(([k]) => k);
+    process.stdout.write(e.join(' '));
+} catch(_) { process.exit(1); }
+" 2>/dev/null && return 0
+    fi
+
+    # --- jq ------------------------------------------------------------
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '.hooks // {} | to_entries[]
+            | select(.value == true or (.value | type == "object" and (.enabled // true)))
+            | .key' "$cfg" 2>/dev/null | tr '\n' ' ' && return 0
+    fi
+
+    # --- grep fallback (best effort) -----------------------------------
+    # Looks for lines like "secrets-scan": { "enabled": true } or
+    # "secrets-scan": true  within a "hooks" block.
+    local in_hooks=0
+    local brace_depth=0
+    while IFS= read -r line; do
+        # Detect start of "hooks" object
+        if echo "$line" | grep -q '"hooks"'; then
+            in_hooks=1
+            continue
+        fi
+        if [ "$in_hooks" -eq 1 ]; then
+            # Track braces to know when hooks block ends
+            opens=$(echo "$line" | tr -cd '{' | wc -c)
+            closes=$(echo "$line" | tr -cd '}' | wc -c)
+            brace_depth=$((brace_depth + opens - closes))
+            if [ "$brace_depth" -lt 0 ]; then
+                break
+            fi
+            # Check for "name": true or "enabled": true
+            name=$(echo "$line" | sed -n 's/.*"\([a-z_-]*\)"[[:space:]]*:.*/\1/p')
+            if [ -n "$name" ] && echo "$line" | grep -q 'true'; then
+                # Skip the "enabled" key itself
+                if [ "$name" != "enabled" ]; then
+                    printf '%s ' "$name"
+                fi
+            fi
+        fi
+    done < "$cfg"
+    return 0
+}
+
+# ---------------------------------------------------------------------------
+# Collect enabled checkers
+# ---------------------------------------------------------------------------
+ENABLED_RAW="$(read_enabled_checkers "$CONFIG_FILE")"
+
+# If nothing is configured, use defaults
+if [ -z "$ENABLED_RAW" ]; then
+    ENABLED_RAW="secrets-scan lint-check fitness-check dependency-audit doc-coverage test-gate"
+fi
+
+# Convert to array
+read -ra CHECKERS <<< "$ENABLED_RAW"
+
+if [ "${#CHECKERS[@]}" -eq 0 ]; then
+    printf "${CYAN}[SPEAR] No checkers enabled — skipping pre-commit.${RESET}\n"
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Run each checker
+# ---------------------------------------------------------------------------
+printf "\n${BOLD}${CYAN}[SPEAR] Running pre-commit checks...${RESET}\n"
+printf "${CYAN}─────────────────────────────────────────────${RESET}\n"
+
+declare -a NAMES=()
+declare -a STATUSES=()
+FAILURES=0
+
+for checker in "${CHECKERS[@]}"; do
+    script="${CHECKERS_DIR}/${checker}.sh"
+    NAMES+=("$checker")
+
+    if [ ! -f "$script" ]; then
+        STATUSES+=("SKIP")
+        printf "${YELLOW}[SPEAR] %-20s SKIP (script not found)${RESET}\n" "${checker}:"
+        continue
+    fi
+
+    if ! [ -x "$script" ]; then
+        # Try to run with bash anyway
+        if bash "$script" "$PROJECT_ROOT"; then
+            STATUSES+=("PASS")
+        else
+            STATUSES+=("FAIL")
+            FAILURES=$((FAILURES + 1))
+        fi
+    else
+        if "$script" "$PROJECT_ROOT"; then
+            STATUSES+=("PASS")
+        else
+            STATUSES+=("FAIL")
+            FAILURES=$((FAILURES + 1))
+        fi
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# Summary table
+# ---------------------------------------------------------------------------
+printf "\n${BOLD}${CYAN}[SPEAR] ══════════════════════════════════════${RESET}\n"
+printf "${BOLD}${CYAN}[SPEAR]        PRE-COMMIT SUMMARY${RESET}\n"
+printf "${BOLD}${CYAN}[SPEAR] ══════════════════════════════════════${RESET}\n"
+
+for i in "${!NAMES[@]}"; do
+    name="${NAMES[$i]}"
+    status="${STATUSES[$i]}"
+    case "$status" in
+        PASS)
+            printf "${GREEN}[SPEAR]   %-22s PASS %s${RESET}\n" "$name" "✓"
+            ;;
+        FAIL)
+            printf "${RED}[SPEAR]   %-22s FAIL %s${RESET}\n" "$name" "✗"
+            ;;
+        SKIP)
+            printf "${YELLOW}[SPEAR]   %-22s SKIP %s${RESET}\n" "$name" "⊘"
+            ;;
+    esac
+done
+
+printf "${BOLD}${CYAN}[SPEAR] ══════════════════════════════════════${RESET}\n"
+
+if [ "$FAILURES" -gt 0 ]; then
+    printf "${RED}${BOLD}[SPEAR] ${FAILURES} checker(s) FAILED — commit blocked.${RESET}\n"
+    printf "${RED}[SPEAR] Fix the issues above or use SPEAR_SKIP=1 to bypass.${RESET}\n\n"
+    exit 1
+else
+    total="${#NAMES[@]}"
+    printf "${GREEN}${BOLD}[SPEAR] All ${total} checker(s) passed — commit allowed.${RESET}\n\n"
+    exit 0
+fi

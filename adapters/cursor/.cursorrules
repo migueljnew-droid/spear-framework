@@ -1,0 +1,130 @@
+# SPEAR Framework -- Cursor Rules
+#
+# INSTALLATION: Copy this file to your project root as .cursorrules
+# Ensure .spear/ directory exists (run: spear init).
+#
+# This file embeds the SPEAR methodology into Cursor's AI behavior.
+# Reference: .spear/SPEAR.md for the full framework definition.
+
+# === PHASE AWARENESS ===
+# Before taking any action, determine which SPEAR phase is active.
+# Check .spear/output/ to see which phase outputs exist:
+#   - No spec output -> Spec phase (gather requirements, produce PRD)
+#   - Spec but no plan -> Plan phase (create task plans, fitness functions)
+#   - Plan but no execution report -> Execute phase (implement, test, commit)
+#   - Execution report but no audit -> Audit phase (review all changes)
+#   - Audit passed but no retrospective -> Ratchet phase (tighten thresholds)
+#   - All complete -> New cycle (start with Spec)
+#
+# Never skip phases. Never execute code during Spec or Plan phases.
+# Never plan during Execute phase -- follow the existing plan.
+
+# === SPEC PHASE RULES ===
+# When in Spec phase:
+# 1. Read .spear/memory/ for past decisions, patterns, constraints
+# 2. Read .spear/ratchet/ratchet.json for current thresholds
+# 3. Ask clarifying questions before producing specs
+# 4. Use templates from .spear/templates/spec/
+# 5. Produce: PRD, architecture doc, epic shards
+# 6. Do NOT write implementation code
+
+# === PLAN PHASE RULES ===
+# When in Plan phase:
+# 1. Read approved spec outputs from .spear/output/spec/
+# 2. Break work into atomic tasks with success criteria
+# 3. Define fitness functions for every metric that matters
+# 4. Order tasks by dependency -- no task before its prerequisites
+# 5. Plan only the next phase in detail; future phases are summaries
+# 6. Use templates from .spear/templates/plan/
+
+# === EXECUTE PHASE RULES ===
+# When in Execute phase:
+# 1. Read the phase plan BEFORE writing any code
+# 2. Read ratchet thresholds -- know the constraints
+# 3. Read files before modifying them -- match existing patterns
+# 4. Follow task order from the plan exactly
+# 5. Atomic commits: one logical change per commit
+# 6. Commit format: type(scope): description (feat/fix/refactor/test/docs/chore/perf)
+# 7. Log deviations immediately if plan changes during execution
+# 8. Run fitness functions at 25%, 50%, 75%, 100% checkpoints
+# 9. Stop if any fitness function regresses at a checkpoint
+# 10. Write tests alongside code -- never defer
+
+# === AUDIT RULES ===
+# All changes must pass 6 audit categories:
+#
+# 1. SECURITY (blocks on CRITICAL)
+#    - No hardcoded secrets, keys, tokens, or passwords
+#    - No SQL injection, XSS, CSRF vulnerabilities
+#    - Input validation on all external data
+#    - Auth/authz checks present where needed
+#    - No error messages leaking internals
+#
+# 2. DEPENDENCIES (blocks on CRITICAL)
+#    - New deps justified and necessary
+#    - No known CVEs in added packages
+#    - License compatibility verified
+#    - Versions pinned in production
+#
+# 3. PERFORMANCE (blocks on HIGH)
+#    - No O(n^2) where O(n log n) is feasible
+#    - No N+1 query patterns
+#    - Pagination on list endpoints
+#    - Bundle/binary size justified
+#
+# 4. CODE QUALITY (blocks on HIGH)
+#    - No code duplication (DRY)
+#    - No dead code or unreachable branches
+#    - Clear naming for variables, functions, types
+#    - Explicit error handling -- no swallowed errors
+#    - Test coverage for all new code
+#    - Functions under 50 lines
+#
+# 5. DOCUMENTATION (blocks on CRITICAL)
+#    - Public API docs for new endpoints/types
+#    - README updated if behavior changed
+#    - Inline comments for non-obvious logic
+#
+# 6. ARCHITECTURE (blocks on HIGH)
+#    - No layer violations
+#    - No circular dependencies
+#    - Patterns consistent with existing codebase
+#    - New patterns justified when existing patterns exist
+
+# === SEVERITY LEVELS ===
+# CRITICAL: Must fix. No override. Security vuln, data loss risk.
+# HIGH: Fix or justify in writing. Performance regression, missing tests.
+# MEDIUM: Fix in current or next cycle. Code smell, minor doc gap.
+# LOW: Track. Fix when convenient. Style preference.
+# INFO: Observation. No action needed.
+
+# === RATCHET CONSTRAINTS ===
+# Read .spear/ratchet/ratchet.json for current thresholds.
+# Floor metrics (must stay above): test_coverage, doc_coverage
+# Ceiling metrics (must stay below): max_complexity, max_bundle_size, max_build_time
+# Never regress a threshold. If improvement >5%, threshold auto-tightens.
+# Loosening requires written justification in ratchet/history.jsonl.
+
+# === CODE STANDARDS ===
+# - Match existing codebase patterns -- consistency over preference
+# - Write tests alongside implementation, not after
+# - Handle all errors explicitly -- no empty catch blocks
+# - No hardcoded config values -- use config files or env vars
+# - No magic numbers -- use named constants
+# - Secrets never in code -- env vars or secret managers only
+# - Conventional commits: type(scope): description
+
+# === MEMORY SYSTEM ===
+# Before Spec and Plan phases, read:
+#   .spear/memory/decisions/ -- past Architecture Decision Records
+#   .spear/memory/patterns/ -- established code patterns
+#   .spear/memory/antipatterns/ -- known failures to avoid
+#   .spear/memory/findings/ -- archived audit findings
+#
+# After Ratchet phase, write new entries to memory.
+
+# === TEMPLATES ===
+# All phase outputs must use templates from .spear/templates/:
+#   spec/: prd.md, architecture.md, epic-shard.md
+#   plan/: phase-plan.md, fitness-function.md, research-brief.md
+#   execute/: task-commit.md, deviation-log.md, checkpoint.md
