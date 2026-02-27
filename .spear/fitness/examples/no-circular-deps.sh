@@ -52,7 +52,7 @@ check_rust() {
         if echo "$output" | grep -q "circular"; then
             echo -e "${RED}FAIL${NC}: Circular dependencies detected in Rust crate graph"
             echo "$output" | grep -i "circular"
-            return 0  # Signal that we handled it (caller checks exit)
+            exit 1  # Circular deps found — fail
         fi
         echo -e "${GREEN}PASS${NC}: No circular dependencies in Rust crate graph"
         exit 0

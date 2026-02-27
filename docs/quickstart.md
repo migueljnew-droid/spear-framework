@@ -1,5 +1,8 @@
 # SPEAR Quickstart: 5 Minutes to Your First Cycle
 
+> **Note:** The `spear` CLI is planned for v2.0. This quickstart shows the target workflow.
+> For the current manual workflow, see the [adapter guides](adapters/) or use `install.sh` directly.
+
 ## Prerequisites
 
 - Git repository (new or existing)
@@ -11,19 +14,20 @@
 ## Step 1: Install SPEAR
 
 ```bash
-# Install the CLI
-curl -fsSL https://spear-framework.dev/install.sh | bash
-
-# Verify installation
-spear --version
-# => spear 1.0.0
+# Install SPEAR into your project
+curl -fsSL https://raw.githubusercontent.com/migueljnew-droid/spear-framework/main/install.sh | bash
 ```
 
 Or install manually:
 
 ```bash
-npm install -g @spear-framework/cli
+git clone https://github.com/migueljnew-droid/spear-framework.git
+cp -r spear-framework/.spear your-project/.spear
+cp -r spear-framework/hooks your-project/hooks
+cd your-project && ./install.sh
 ```
+
+> **Note:** `npm install -g @spear-framework/cli` is coming soon in v2.0.
 
 ---
 
@@ -39,7 +43,7 @@ Expected output:
 ```
 Initialized SPEAR in ./spear/
   Created: .spear/config.json        (project configuration)
-  Created: .spear/ratchet.json       (quality floors — all at 0)
+  Created: .spear/ratchet/ratchet.json (quality floors — all at 0)
   Created: .spear/memory/            (decision log directory)
   Created: .spear/specs/             (specification directory)
   Created: .spear/plans/             (plan directory)
@@ -189,12 +193,12 @@ Output:
 ```
 Running 6 audit categories in parallel...
 
-[PASS] Architecture    — Score: 92/100 (0 CRITICAL, 0 HIGH)
-[PASS] Code Quality    — Score: 88/100 (0 CRITICAL, 1 HIGH)
 [PASS] Security        — Score: 95/100 (0 CRITICAL, 0 HIGH)
+[PASS] Dependencies    — Score: 98/100 (0 CRITICAL, 0 HIGH)
 [PASS] Performance     — Score: 90/100 (0 CRITICAL, 0 HIGH)
-[PASS] Testing         — Score: 85/100 (0 CRITICAL, 0 HIGH)
-[PASS] Spec Compliance — Score: 100/100 (0 CRITICAL, 0 HIGH)
+[PASS] Code Quality    — Score: 88/100 (0 CRITICAL, 1 HIGH)
+[PASS] Documentation   — Score: 85/100 (0 CRITICAL, 0 HIGH)
+[PASS] Architecture    — Score: 92/100 (0 CRITICAL, 0 HIGH)
 
 Overall: PASS (no CRITICAL findings)
 1 HIGH finding:
@@ -219,12 +223,12 @@ spear ratchet status
 
 ```
 Quality Floors (auto-tightened):
-  architecture:    0 → 92  (+92)
-  code_quality:    0 → 88  (+88)
   security:        0 → 95  (+95)
+  dependencies:    0 → 98  (+98)
   performance:     0 → 90  (+90)
-  testing:         0 → 85  (+85)
-  spec_compliance: 0 → 100 (+100)
+  code_quality:    0 → 88  (+88)
+  documentation:   0 → 85  (+85)
+  architecture:    0 → 92  (+92)
 
 Next audit must meet or exceed these scores.
 ```

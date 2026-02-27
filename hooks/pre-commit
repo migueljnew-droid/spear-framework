@@ -44,6 +44,7 @@ CHECKERS_DIR="${HOOKS_DIR}/checkers"
 if [ "${SPEAR_SKIP:-0}" = "1" ]; then
     printf "${YELLOW}[SPEAR] WARNING: pre-commit checks SKIPPED (SPEAR_SKIP=1)${RESET}\n"
     printf "${YELLOW}[SPEAR] This is intended for emergencies only.${RESET}\n"
+    echo "{\"event\":\"SPEAR_SKIP\",\"user\":\"$(git config user.email 2>/dev/null || echo unknown)\",\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> "${PROJECT_ROOT}/.spear/audit-log.jsonl" 2>/dev/null || true
     exit 0
 fi
 
@@ -64,10 +65,10 @@ read_enabled_checkers() {
 
     # --- python3 -------------------------------------------------------
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "
-import json, sys
+        CONFIG_FILE="$cfg" python3 -c "
+import json, sys, os
 try:
-    data = json.load(open('$cfg'))
+    data = json.load(open(os.environ['CONFIG_FILE']))
     hooks = data.get('hooks', {})
     enabled = []
     for name, settings in hooks.items():
@@ -83,9 +84,9 @@ except Exception:
 
     # --- node ----------------------------------------------------------
     if command -v node >/dev/null 2>&1; then
-        node -e "
+        CONFIG_FILE="$cfg" node -e "
 try {
-    const d = JSON.parse(require('fs').readFileSync('$cfg','utf8'));
+    const d = JSON.parse(require('fs').readFileSync(process.env.CONFIG_FILE,'utf8'));
     const h = d.hooks || {};
     const e = Object.entries(h)
         .filter(([,v]) => (typeof v === 'object' ? v.enabled !== false : v === true))
@@ -163,6 +164,12 @@ declare -a STATUSES=()
 FAILURES=0
 
 for checker in "${CHECKERS[@]}"; do
+    # Validate checker name to prevent path traversal
+    if ! echo "$checker" | grep -Eq '^[a-zA-Z0-9_-]+$'; then
+        printf "${RED}[SPEAR] Invalid checker name '%s' — skipping${RESET}\n" "$checker"
+        continue
+    fi
+
     script="${CHECKERS_DIR}/${checker}.sh"
     NAMES+=("$checker")
 

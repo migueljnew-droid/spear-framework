@@ -21,6 +21,7 @@ else
     RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
 fi
 
+NL=$'\n'
 CHECKER_NAME="dependency-audit"
 PROJECT_ROOT="${1:-.}"
 
@@ -38,7 +39,7 @@ HAS_GO=0
 [ -f "${PROJECT_ROOT}/go.mod" ] && HAS_GO=1
 
 if [ "$HAS_RUST" -eq 0 ] && [ "$HAS_NODE" -eq 0 ] && [ "$HAS_PYTHON" -eq 0 ] && [ "$HAS_GO" -eq 0 ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no recognized project manifests)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no recognized project manifests)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 fi
 
@@ -59,29 +60,29 @@ if [ "$HAS_RUST" -eq 1 ]; then
             RAN_ANY=1
             AUDIT_OUT=""
             if AUDIT_OUT=$(cd "$PROJECT_ROOT" && cargo audit 2>&1); then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (cargo audit): no vulnerabilities${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (cargo audit): no vulnerabilities${RESET}${NL}"
             else
                 # Check severity — cargo audit exits 1 on any vuln
                 if echo "$AUDIT_OUT" | grep -qi "critical\|high"; then
                     FAILURES=$((FAILURES + 1))
-                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (cargo audit): HIGH/CRITICAL vulnerabilities found${RESET}\n"
+                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (cargo audit): HIGH/CRITICAL vulnerabilities found${RESET}${NL}"
                     # Show first few lines of output
                     SUMMARY=$(echo "$AUDIT_OUT" | grep -i "vulnerability\|crate\|critical\|high" | head -5)
                     if [ -n "$SUMMARY" ]; then
                         while IFS= read -r line; do
-                            MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                            MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                         done <<< "$SUMMARY"
                     fi
                 else
                     # Only low/medium — warn but don't fail
-                    MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust (cargo audit): low/medium vulnerabilities (non-blocking)${RESET}\n"
+                    MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust (cargo audit): low/medium vulnerabilities (non-blocking)${RESET}${NL}"
                 fi
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo-audit not installed — skipped (install: cargo install cargo-audit)${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo-audit not installed — skipped (install: cargo install cargo-audit)${RESET}${NL}"
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}${NL}"
     fi
 fi
 
@@ -94,26 +95,26 @@ if [ "$HAS_NODE" -eq 1 ]; then
             RAN_ANY=1
             AUDIT_OUT=""
             if AUDIT_OUT=$(cd "$PROJECT_ROOT" && npm audit --audit-level=high 2>&1); then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (npm audit): no high/critical vulnerabilities${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (npm audit): no high/critical vulnerabilities${RESET}${NL}"
             else
                 EXIT_CODE=$?
                 # npm audit exits non-zero when vulns found at/above specified level
                 if [ "$EXIT_CODE" -ne 0 ]; then
                     FAILURES=$((FAILURES + 1))
                     VULN_COUNT=$(echo "$AUDIT_OUT" | grep -oE '[0-9]+ (high|critical)' | head -3 || echo "")
-                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (npm audit): HIGH/CRITICAL vulnerabilities found${RESET}\n"
+                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (npm audit): HIGH/CRITICAL vulnerabilities found${RESET}${NL}"
                     if [ -n "$VULN_COUNT" ]; then
                         while IFS= read -r line; do
-                            [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                            [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                         done <<< "$VULN_COUNT"
                     fi
                 fi
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: npm not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: npm not found — skipped${RESET}${NL}"
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: no lockfile found — skipped (run npm install first)${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: no lockfile found — skipped (run npm install first)${RESET}${NL}"
     fi
 fi
 
@@ -125,14 +126,14 @@ if [ "$HAS_PYTHON" -eq 1 ]; then
         RAN_ANY=1
         AUDIT_OUT=""
         if AUDIT_OUT=$(cd "$PROJECT_ROOT" && pip-audit 2>&1); then
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (pip-audit): no vulnerabilities${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (pip-audit): no vulnerabilities${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (pip-audit): vulnerabilities found${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (pip-audit): vulnerabilities found${RESET}${NL}"
             SUMMARY=$(echo "$AUDIT_OUT" | head -5)
             if [ -n "$SUMMARY" ]; then
                 while IFS= read -r line; do
-                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                 done <<< "$SUMMARY"
             fi
         fi
@@ -140,13 +141,13 @@ if [ "$HAS_PYTHON" -eq 1 ]; then
         RAN_ANY=1
         AUDIT_OUT=""
         if AUDIT_OUT=$(cd "$PROJECT_ROOT" && safety check 2>&1); then
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (safety): no vulnerabilities${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (safety): no vulnerabilities${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (safety): vulnerabilities found${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (safety): vulnerabilities found${RESET}${NL}"
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: pip-audit/safety not found — skipped (install: pip install pip-audit)${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: pip-audit/safety not found — skipped (install: pip install pip-audit)${RESET}${NL}"
     fi
 fi
 
@@ -158,19 +159,19 @@ if [ "$HAS_GO" -eq 1 ]; then
         RAN_ANY=1
         AUDIT_OUT=""
         if AUDIT_OUT=$(cd "$PROJECT_ROOT" && govulncheck ./... 2>&1); then
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (govulncheck): no vulnerabilities${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (govulncheck): no vulnerabilities${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (govulncheck): vulnerabilities found${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (govulncheck): vulnerabilities found${RESET}${NL}"
             SUMMARY=$(echo "$AUDIT_OUT" | grep -i "vuln\|GO-" | head -5)
             if [ -n "$SUMMARY" ]; then
                 while IFS= read -r line; do
-                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                 done <<< "$SUMMARY"
             fi
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: govulncheck not found — skipped (install: go install golang.org/x/vuln/cmd/govulncheck@latest)${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: govulncheck not found — skipped (install: go install golang.org/x/vuln/cmd/govulncheck@latest)${RESET}${NL}"
     fi
 fi
 
@@ -178,15 +179,15 @@ fi
 # Report
 # ---------------------------------------------------------------------------
 if [ "$FAILURES" -gt 0 ]; then
-    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (high/critical vulnerabilities)${RESET}\n" "${CHECKER_NAME}:" "✗"
-    printf "$MESSAGES"
+    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (high/critical vulnerabilities)${RESET}${NL}" "${CHECKER_NAME}:" "✗"
+    printf '%s' "$MESSAGES"
     exit 1
 elif [ "$RAN_ANY" -eq 0 ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no audit tools available)${RESET}\n" "${CHECKER_NAME}:" "⊘"
-    printf "$MESSAGES"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no audit tools available)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
+    printf '%s' "$MESSAGES"
     exit 0
 else
-    printf "${GREEN}[SPEAR] %-20s PASS %s${RESET}\n" "${CHECKER_NAME}:" "✓"
-    printf "$MESSAGES"
+    printf "${GREEN}[SPEAR] %-20s PASS %s${RESET}${NL}" "${CHECKER_NAME}:" "✓"
+    printf '%s' "$MESSAGES"
     exit 0
 fi

@@ -1,0 +1,22 @@
+# Example SPEAR Ratchet Rule
+# Auto-generated rules follow this format.
+# Rename to RULE-NNN-description.yaml
+
+id: RULE-001
+title: Require JSDoc on all exported functions
+severity: HIGH
+source: audit-finding
+finding_id: CQ-001
+category: code_quality
+created: 2026-02-26
+active: true
+
+condition:
+  type: grep
+  pattern: "^export (function|const|class)"
+  require_preceding: "^\\s*\\*/"
+  scope: staged_files
+  file_types: ["*.ts", "*.js"]
+
+action: block_commit
+message: "Exported function missing JSDoc documentation"

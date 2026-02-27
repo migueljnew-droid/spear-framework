@@ -8,56 +8,53 @@ Complete documentation for every field in `.spear/config.json`.
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.0.0",
   "project": {
     "name": "",
-    "type": "single"
+    "language": "auto",
+    "description": ""
   },
-  "spec": {
-    "required_fields": ["title", "acceptance_criteria", "constraints"],
-    "types": ["prd", "epic-shard", "spike"],
-    "default_type": "epic-shard",
-    "require_out_of_scope": true
-  },
-  "plan": {
-    "max_phase_hours": 8,
-    "require_fitness_functions": true,
-    "require_dependencies": true
-  },
-  "execute": {
-    "checkpoints": [25, 50, 75, 100],
-    "commit_convention": "conventional",
-    "require_spec_reference": true,
-    "deviation_logging": "required"
+  "phases": {
+    "spec": { "enabled": true, "require_approval": true },
+    "plan": { "enabled": true, "require_approval": true },
+    "execute": { "enabled": true, "require_approval": false },
+    "audit": { "enabled": true, "require_approval": false },
+    "ratchet": { "enabled": true, "require_approval": false }
   },
   "audit": {
-    "categories": [
-      "architecture",
-      "code_quality",
-      "security",
-      "performance",
-      "testing",
-      "spec_compliance"
-    ],
-    "block_on": ["CRITICAL"],
+    "categories": {
+      "security": { "enabled": true, "block_on": "CRITICAL" },
+      "dependencies": { "enabled": true, "block_on": "CRITICAL" },
+      "performance": { "enabled": true, "block_on": "HIGH" },
+      "code_quality": { "enabled": true, "block_on": "HIGH" },
+      "documentation": { "enabled": true, "block_on": "CRITICAL" },
+      "architecture": { "enabled": true, "block_on": "HIGH" }
+    },
     "parallel": true,
-    "timeout_seconds": 300,
-    "custom_rules": ".spear/audit-rules/"
+    "auto_fix": false
   },
   "ratchet": {
-    "mode": "immediate",
-    "increment": 0,
-    "override_requires_expiry": true,
-    "override_max_days": 90
+    "auto_tighten": true,
+    "tighten_buffer_percent": 2,
+    "improvement_threshold_percent": 5,
+    "require_justification_to_loosen": true
+  },
+  "hooks": {
+    "pre-commit": true,
+    "commit-msg": true,
+    "secrets-scan": true,
+    "lint-check": true,
+    "fitness-check": true,
+    "dependency-audit": true,
+    "doc-coverage": true,
+    "test-gate": true
   },
   "memory": {
-    "backend": "file",
-    "sync_to_files": true
+    "backend": "json",
+    "auto_index": true,
+    "max_entries_per_category": 500
   },
-  "adapters": {
-    "auto_update": true,
-    "active": []
-  }
+  "adapter": "auto"
 }
 ```
 
@@ -68,8 +65,8 @@ Complete documentation for every field in `.spear/config.json`.
 ### `version`
 
 - **Type:** string
-- **Default:** `"1.0"`
-- **Description:** Config schema version. Used for migration when SPEAR updates.
+- **Default:** `"1.0.0"`
+- **Description:** Config schema version. Uses semantic versioning. Used for migration when SPEAR updates.
 
 ### `project`
 
@@ -188,8 +185,8 @@ Complete documentation for every field in `.spear/config.json`.
 #### `audit.categories`
 
 - **Type:** string[]
-- **Default:** `["architecture", "code_quality", "security", "performance", "testing", "spec_compliance"]`
-- **Description:** Which audit categories to run. Add custom category IDs to include them. Remove built-in categories to skip them.
+- **Default:** `["security", "dependencies", "performance", "code_quality", "documentation", "architecture"]`
+- **Description:** Which audit categories to run. Each category is an object with `enabled` (boolean) and `block_on` (severity level) properties. Add custom category IDs to include them.
 
 #### `audit.block_on`
 
@@ -254,8 +251,8 @@ Complete documentation for every field in `.spear/config.json`.
 #### `memory.backend`
 
 - **Type:** string
-- **Values:** `"file"`, `"sqlite-fts"`, `"qdrant"`, `"hybrid"`
-- **Default:** `"file"`
+- **Values:** `"json"`, `"sqlite-fts"`, `"qdrant"`, `"hybrid"`
+- **Default:** `"json"`
 - **Description:** Memory storage backend. See `docs/upgrades/memory-backends.md` for details.
 
 #### `memory.db_path`
@@ -290,21 +287,14 @@ Complete documentation for every field in `.spear/config.json`.
 
 ---
 
-### `adapters`
+### `adapter`
 
-#### `adapters.auto_update`
+#### `adapter`
 
-- **Type:** boolean
-- **Default:** `true`
-- **Description:** Automatically regenerate adapter files when phase context changes (during `spear execute` and `spear execute complete`).
-
-#### `adapters.active`
-
-- **Type:** string[]
-- **Default:** `[]`
-- **Description:** Which adapters to auto-update. Empty array means manual-only.
-- **Example:** `["claude-code", "cursor"]` — Both adapters update on phase changes.
-- **Valid values:** `"claude-code"`, `"cursor"`, `"copilot"`, `"antigravity"`, `"kiro"`, `"generic"`
+- **Type:** string
+- **Default:** `"auto"`
+- **Description:** Which AI tool adapter to use. Set to `"auto"` for auto-detection based on project files, or specify one explicitly.
+- **Valid values:** `"auto"`, `"claude-code"`, `"cursor"`, `"copilot"`, `"antigravity"`, `"kiro"`, `"generic"`
 
 ---
 

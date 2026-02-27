@@ -20,6 +20,7 @@ else
     RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
 fi
 
+NL=$'\n'
 CHECKER_NAME="lint-check"
 PROJECT_ROOT="${1:-.}"
 
@@ -77,22 +78,22 @@ if [ "$HAS_JS" -eq 1 ]; then
             RAN_ANY=1
             # shellcheck disable=SC2086
             if (cd "$PROJECT_ROOT" && npx eslint --no-error-on-unmatched-pattern $JS_FILES) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     JS/TS (eslint): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     JS/TS (eslint): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     JS/TS (eslint): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     JS/TS (eslint): failed${RESET}${NL}"
             fi
         elif command -v eslint >/dev/null 2>&1; then
             RAN_ANY=1
             # shellcheck disable=SC2086
             if (cd "$PROJECT_ROOT" && eslint --no-error-on-unmatched-pattern $JS_FILES) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     JS/TS (eslint): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     JS/TS (eslint): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     JS/TS (eslint): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     JS/TS (eslint): failed${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     JS/TS: eslint not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     JS/TS: eslint not found — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -107,13 +108,13 @@ if [ "$HAS_RUST" -eq 1 ]; then
         if command -v cargo >/dev/null 2>&1; then
             RAN_ANY=1
             if (cd "$PROJECT_ROOT" && cargo clippy --all-targets --all-features -- -D warnings) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (clippy): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (clippy): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (clippy): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (clippy): failed${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -129,22 +130,22 @@ if [ "$HAS_PYTHON" -eq 1 ]; then
             RAN_ANY=1
             # shellcheck disable=SC2086
             if (cd "$PROJECT_ROOT" && ruff check $PY_FILES) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (ruff): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (ruff): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (ruff): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (ruff): failed${RESET}${NL}"
             fi
         elif command -v flake8 >/dev/null 2>&1; then
             RAN_ANY=1
             # shellcheck disable=SC2086
             if (cd "$PROJECT_ROOT" && flake8 $PY_FILES) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (flake8): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (flake8): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (flake8): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (flake8): failed${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: ruff/flake8 not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: ruff/flake8 not found — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -159,13 +160,13 @@ if [ "$HAS_GO" -eq 1 ]; then
         if command -v golangci-lint >/dev/null 2>&1; then
             RAN_ANY=1
             if (cd "$PROJECT_ROOT" && golangci-lint run ./...) >/dev/null 2>&1; then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (golangci-lint): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (golangci-lint): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (golangci-lint): failed${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (golangci-lint): failed${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: golangci-lint not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: golangci-lint not found — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -175,14 +176,14 @@ fi
 # ---------------------------------------------------------------------------
 if [ "$FAILURES" -gt 0 ]; then
     printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s${RESET}\n" "${CHECKER_NAME}:" "✗"
-    printf "$MESSAGES"
+    printf '%s' "$MESSAGES"
     exit 1
 elif [ "$RAN_ANY" -eq 0 ]; then
     printf "${YELLOW}[SPEAR] %-20s SKIP %s (no linters available)${RESET}\n" "${CHECKER_NAME}:" "⊘"
-    printf "$MESSAGES"
+    printf '%s' "$MESSAGES"
     exit 0
 else
     printf "${GREEN}[SPEAR] %-20s PASS %s${RESET}\n" "${CHECKER_NAME}:" "✓"
-    printf "$MESSAGES"
+    printf '%s' "$MESSAGES"
     exit 0
 fi

@@ -74,23 +74,23 @@ Checks for performance issues:
 - Memory leaks (event listeners, unclosed connections)
 - Response time estimates for critical paths
 
-### 5. Testing
+### 5. Dependencies
 
-Checks test coverage and quality:
-- Line and branch coverage percentages
-- Critical path test coverage
-- Edge case coverage (nulls, empty, overflow, unicode)
-- Test isolation (no shared state between tests)
-- Test naming and organization
+Checks dependency health:
+- Known vulnerabilities (CVEs) in third-party packages
+- License compatibility with project license
+- Outdated packages with available updates
+- Supply chain risks (typosquatting, maintainer changes)
+- Dependency tree depth and duplication
 
-### 6. Spec Compliance
+### 6. Documentation
 
-Checks implementation against the original spec:
-- Every acceptance criterion has corresponding implementation
-- Every acceptance criterion has a corresponding test
-- Constraints are satisfied
-- Out-of-scope items were not accidentally included
-- Non-functional requirements are met
+Checks documentation coverage and accuracy:
+- Public API documentation (JSDoc, docstrings, typedoc)
+- README accuracy matches current implementation
+- Changelog kept up to date
+- Architecture decisions recorded
+- Inline comments on complex logic
 
 ---
 
@@ -183,16 +183,19 @@ Generated: 2026-02-26T14:30:00Z
   File: src/models/user.js:28
   Note: Deviation DEV-001 added this index — verify migration ran
 
-=== Testing (Score: 85/100) ===
-[HIGH] TEST-001: No test for concurrent registration with same email
-  File: tests/auth.test.js
-  Missing: Race condition test for duplicate email handling
-[MEDIUM] TEST-002: Login failure test doesn't verify response body shape
-  File: tests/auth.test.js:67
-  Suggestion: Assert that error response has { error: string } shape
+=== Dependencies (Score: 98/100) ===
+[MEDIUM] DEP-001: express-rate-limit has newer major version available
+  File: package.json
+  Current: 6.7.0, Latest: 7.1.0
+  Note: Review migration guide before upgrading
 
-=== Spec Compliance (Score: 100/100) ===
-All 9 acceptance criteria verified.
+=== Documentation (Score: 85/100) ===
+[HIGH] DOC-001: hashPassword function missing JSDoc documentation
+  File: src/utils/hash.js:12
+  Required: Public functions must have JSDoc with @param and @returns
+[MEDIUM] DOC-002: README does not mention rate limiting setup
+  File: README.md
+  Suggestion: Add rate limiting configuration to README setup section
 
 === Summary ===
 Total findings: 6 (0 CRITICAL, 2 HIGH, 4 MEDIUM, 0 LOW)
@@ -275,10 +278,10 @@ Findings:
 
 | ID | Category | Severity | Description |
 |----|----------|----------|-------------|
-| CQ-001 | Code Quality | HIGH | hashPassword missing JSDoc |
-| TEST-001 | Testing | HIGH | No concurrent registration test |
+| DOC-001 | Documentation | HIGH | hashPassword missing JSDoc |
+| DEP-001 | Dependencies | MEDIUM | express-rate-limit outdated |
 | ARCH-001 | Architecture | MEDIUM | Auth middleware in wrong directory |
-| CQ-002 | Code Quality | MEDIUM | loginHandler complexity 8 |
+| CQ-001 | Code Quality | MEDIUM | loginHandler complexity 8 |
 | SEC-001 | Security | MEDIUM | JWT 1h expiry may be long |
 | PERF-001 | Performance | MEDIUM | Verify email index migration |
 
@@ -287,12 +290,11 @@ Action taken:
 ```bash
 # Fix the two HIGH findings
 vim src/utils/hash.js          # Add JSDoc
-vim tests/auth.test.js         # Add concurrency test
-git commit -m "fix(auth): add JSDoc and concurrent registration test [spec-001/audit]"
+git commit -m "fix(auth): add JSDoc for hashPassword [spec-001/audit]"
 
 # Re-run audit
 spear audit --plan plan-001 --rerun
-# => 0 CRITICAL, 0 HIGH, 4 MEDIUM
+# => 0 CRITICAL, 0 HIGH, 5 MEDIUM
 # => Ready to ratchet
 ```
 
@@ -305,7 +307,7 @@ Customize audit behavior in `.spear/config.json`:
 ```json
 {
   "audit": {
-    "categories": ["architecture", "code_quality", "security", "performance", "testing", "spec_compliance"],
+    "categories": ["security", "dependencies", "performance", "code_quality", "documentation", "architecture"],
     "block_on": ["CRITICAL"],
     "parallel": true,
     "timeout_seconds": 300,

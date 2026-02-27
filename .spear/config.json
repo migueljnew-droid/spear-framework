@@ -32,14 +32,14 @@
     "require_justification_to_loosen": true
   },
   "hooks": {
-    "pre_commit": true,
-    "commit_msg": true,
-    "secrets_scan": true,
-    "lint_check": true,
-    "fitness_check": true,
-    "dependency_audit": true,
-    "doc_coverage": true,
-    "test_gate": true
+    "pre-commit": true,
+    "commit-msg": true,
+    "secrets-scan": true,
+    "lint-check": true,
+    "fitness-check": true,
+    "dependency-audit": true,
+    "doc-coverage": true,
+    "test-gate": true
   },
   "memory": {
     "backend": "json",

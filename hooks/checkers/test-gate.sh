@@ -21,6 +21,7 @@ else
     RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
 fi
 
+NL=$'\n'
 CHECKER_NAME="test-gate"
 PROJECT_ROOT="${1:-.}"
 
@@ -38,7 +39,7 @@ HAS_GO=0
 [ -f "${PROJECT_ROOT}/go.mod" ] && HAS_GO=1
 
 if [ "$HAS_RUST" -eq 0 ] && [ "$HAS_NODE" -eq 0 ] && [ "$HAS_PYTHON" -eq 0 ] && [ "$HAS_GO" -eq 0 ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no recognized project manifests)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no recognized project manifests)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 fi
 
@@ -96,23 +97,23 @@ if [ "$HAS_RUST" -eq 1 ]; then
         TEST_OUT=""
         if TEST_OUT=$(cd "$PROJECT_ROOT" && cargo test 2>&1); then
             SUMMARY=$(extract_test_summary "$TEST_OUT" "cargo")
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (cargo test): passed${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Rust (cargo test): passed${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
             SUMMARY=$(extract_test_summary "$TEST_OUT" "cargo")
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (cargo test): FAILED${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Rust (cargo test): FAILED${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
             # Show failing test names
             FAILING=$(echo "$TEST_OUT" | grep -E '^\s*---\s+.*FAILED' | head -5)
             if [ -n "$FAILING" ]; then
                 while IFS= read -r line; do
-                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                    [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                 done <<< "$FAILING"
             fi
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Rust: cargo not found — skipped${RESET}${NL}"
     fi
 fi
 
@@ -129,13 +130,13 @@ if [ "$HAS_NODE" -eq 1 ]; then
         TEST_OUT=""
         if TEST_OUT=$(cd "$PROJECT_ROOT" && npx vitest run 2>&1); then
             SUMMARY=$(extract_test_summary "$TEST_OUT" "vitest")
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (vitest): passed${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (vitest): passed${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
             SUMMARY=$(extract_test_summary "$TEST_OUT" "vitest")
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (vitest): FAILED${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (vitest): FAILED${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         fi
     fi
 
@@ -146,13 +147,13 @@ if [ "$HAS_NODE" -eq 1 ]; then
         TEST_OUT=""
         if TEST_OUT=$(cd "$PROJECT_ROOT" && npx jest --passWithNoTests 2>&1); then
             SUMMARY=$(extract_test_summary "$TEST_OUT" "jest")
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (jest): passed${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (jest): passed${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         else
             FAILURES=$((FAILURES + 1))
             SUMMARY=$(extract_test_summary "$TEST_OUT" "jest")
-            MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (jest): FAILED${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (jest): FAILED${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         fi
     fi
 
@@ -161,9 +162,9 @@ if [ "$HAS_NODE" -eq 1 ]; then
         # Check if package.json has a test script
         HAS_TEST_SCRIPT=0
         if command -v python3 >/dev/null 2>&1; then
-            HAS_TEST_SCRIPT=$(python3 -c "
-import json
-d = json.load(open('${PROJECT_ROOT}/package.json'))
+            HAS_TEST_SCRIPT=$(SPEAR_PKG_JSON="${PROJECT_ROOT}/package.json" python3 -c "
+import json, os
+d = json.load(open(os.environ['SPEAR_PKG_JSON']))
 scripts = d.get('scripts', {})
 t = scripts.get('test', '')
 # Ignore default 'echo Error: no test specified' npm init boilerplate
@@ -173,8 +174,8 @@ else:
     print(0)
 " 2>/dev/null) || HAS_TEST_SCRIPT=0
         elif command -v node >/dev/null 2>&1; then
-            HAS_TEST_SCRIPT=$(node -e "
-const d = JSON.parse(require('fs').readFileSync('${PROJECT_ROOT}/package.json','utf8'));
+            HAS_TEST_SCRIPT=$(SPEAR_PKG_JSON="${PROJECT_ROOT}/package.json" node -e "
+const d = JSON.parse(require('fs').readFileSync(process.env.SPEAR_PKG_JSON,'utf8'));
 const t = (d.scripts || {}).test || '';
 console.log(t && !t.includes('no test specified') ? 1 : 0);
 " 2>/dev/null) || HAS_TEST_SCRIPT=0
@@ -188,13 +189,13 @@ console.log(t && !t.includes('no test specified') ? 1 : 0);
             RAN_ANY=1
             TEST_OUT=""
             if TEST_OUT=$(cd "$PROJECT_ROOT" && npm test 2>&1); then
-                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (npm test): passed${RESET}\n"
+                MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Node (npm test): passed${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (npm test): FAILED${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Node (npm test): FAILED${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: no test script configured — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Node: no test script configured — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -212,23 +213,23 @@ if [ "$HAS_PYTHON" -eq 1 ]; then
         TEST_OUT=""
         if TEST_OUT=$(cd "$PROJECT_ROOT" && pytest --tb=short -q 2>&1); then
             SUMMARY=$(extract_test_summary "$TEST_OUT" "pytest")
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (pytest): passed${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (pytest): passed${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         else
             EXIT_CODE=$?
             # pytest exit code 5 = no tests collected (not a failure)
             if [ "$EXIT_CODE" -eq 5 ]; then
-                MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python (pytest): no tests found — skipped${RESET}\n"
+                MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python (pytest): no tests found — skipped${RESET}${NL}"
             else
                 FAILURES=$((FAILURES + 1))
                 SUMMARY=$(extract_test_summary "$TEST_OUT" "pytest")
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (pytest): FAILED${RESET}\n"
-                [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (pytest): FAILED${RESET}${NL}"
+                [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
                 # Show failing test lines
                 FAILING=$(echo "$TEST_OUT" | grep -E '^FAILED' | head -5)
                 if [ -n "$FAILING" ]; then
                     while IFS= read -r line; do
-                        [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                        [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                     done <<< "$FAILING"
                 fi
             fi
@@ -243,16 +244,16 @@ if [ "$HAS_PYTHON" -eq 1 ]; then
                 RAN_ANY=1
                 TEST_OUT=""
                 if TEST_OUT=$(cd "$PROJECT_ROOT" && python3 -m unittest discover -s . -p "test_*.py" 2>&1); then
-                    MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (unittest): passed${RESET}\n"
+                    MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Python (unittest): passed${RESET}${NL}"
                 else
                     FAILURES=$((FAILURES + 1))
-                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (unittest): FAILED${RESET}\n"
+                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Python (unittest): FAILED${RESET}${NL}"
                 fi
             else
-                MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: no test files found — skipped${RESET}\n"
+                MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: no test files found — skipped${RESET}${NL}"
             fi
         else
-            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: python3 not found — skipped${RESET}\n"
+            MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Python: python3 not found — skipped${RESET}${NL}"
         fi
     fi
 fi
@@ -266,8 +267,8 @@ if [ "$HAS_GO" -eq 1 ]; then
         TEST_OUT=""
         if TEST_OUT=$(cd "$PROJECT_ROOT" && go test ./... 2>&1); then
             SUMMARY=$(extract_test_summary "$TEST_OUT" "go")
-            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (go test): passed${RESET}\n"
-            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}\n"
+            MESSAGES="${MESSAGES}${GREEN}[SPEAR]     Go (go test): passed${RESET}${NL}"
+            [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${GREEN}[SPEAR]       ${SUMMARY}${RESET}${NL}"
         else
             # go test exits 1 on failure
             # Check if it's "no test files" (not a failure)
@@ -275,29 +276,29 @@ if [ "$HAS_GO" -eq 1 ]; then
                 NO_TEST_COUNT=$(echo "$TEST_OUT" | grep -c 'no test files' || true)
                 TOTAL_COUNT=$(echo "$TEST_OUT" | wc -l | tr -d ' ')
                 if [ "$NO_TEST_COUNT" -eq "$TOTAL_COUNT" ]; then
-                    MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: no test files found — skipped${RESET}\n"
+                    MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: no test files found — skipped${RESET}${NL}"
                 else
                     FAILURES=$((FAILURES + 1))
                     SUMMARY=$(extract_test_summary "$TEST_OUT" "go")
-                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (go test): FAILED${RESET}\n"
-                    [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+                    MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (go test): FAILED${RESET}${NL}"
+                    [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
                 fi
             else
                 FAILURES=$((FAILURES + 1))
                 SUMMARY=$(extract_test_summary "$TEST_OUT" "go")
-                MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (go test): FAILED${RESET}\n"
-                [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}\n"
+                MESSAGES="${MESSAGES}${RED}[SPEAR]     Go (go test): FAILED${RESET}${NL}"
+                [ -n "$SUMMARY" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${SUMMARY}${RESET}${NL}"
                 # Show first few FAIL lines
                 FAILING=$(echo "$TEST_OUT" | grep -E '^---\s+FAIL' | head -5)
                 if [ -n "$FAILING" ]; then
                     while IFS= read -r line; do
-                        [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}\n"
+                        [ -n "$line" ] && MESSAGES="${MESSAGES}${RED}[SPEAR]       ${line}${RESET}${NL}"
                     done <<< "$FAILING"
                 fi
             fi
         fi
     else
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: go not found — skipped${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     Go: go not found — skipped${RESET}${NL}"
     fi
 fi
 
@@ -305,15 +306,15 @@ fi
 # Report
 # ---------------------------------------------------------------------------
 if [ "$FAILURES" -gt 0 ]; then
-    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (test failures detected)${RESET}\n" "${CHECKER_NAME}:" "✗"
-    printf "$MESSAGES"
+    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (test failures detected)${RESET}${NL}" "${CHECKER_NAME}:" "✗"
+    printf '%s' "$MESSAGES"
     exit 1
 elif [ "$RAN_ANY" -eq 0 ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no test frameworks available)${RESET}\n" "${CHECKER_NAME}:" "⊘"
-    printf "$MESSAGES"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no test frameworks available)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
+    printf '%s' "$MESSAGES"
     exit 0
 else
-    printf "${GREEN}[SPEAR] %-20s PASS %s${RESET}\n" "${CHECKER_NAME}:" "✓"
-    printf "$MESSAGES"
+    printf "${GREEN}[SPEAR] %-20s PASS %s${RESET}${NL}" "${CHECKER_NAME}:" "✓"
+    printf '%s' "$MESSAGES"
     exit 0
 fi

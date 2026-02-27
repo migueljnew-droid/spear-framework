@@ -15,10 +15,11 @@ overall_verdict: GO # GO | NO-GO
 | Category | Auditor | Findings | Critical | High | Verdict |
 |----------|---------|----------|----------|------|---------|
 | Security | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
-| Quality | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
+| Dependencies | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
 | Performance | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
-| Reliability | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
-| Maintainability | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
+| Code Quality | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
+| Documentation | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
+| Architecture | [name] | [N] | [N] | [N] | PASS/FAIL/WARN |
 
 ## Critical Findings
 

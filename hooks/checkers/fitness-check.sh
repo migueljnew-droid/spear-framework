@@ -12,7 +12,7 @@
 #       "name": "test-coverage",
 #       "script": ".spear/fitness/scripts/test-coverage.sh",
 #       "metric": "coverage_pct",
-#       "active": true
+#       "enabled": true
 #     }
 #   ]
 # }
@@ -42,6 +42,7 @@ else
     RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
 fi
 
+NL=$'\n'
 CHECKER_NAME="fitness-check"
 PROJECT_ROOT="${1:-.}"
 
@@ -52,7 +53,7 @@ RATCHET="${PROJECT_ROOT}/.spear/ratchet/ratchet.json"
 # Check for registry
 # ---------------------------------------------------------------------------
 if [ ! -f "$REGISTRY" ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no fitness registry found)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no fitness registry found)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 fi
 
@@ -64,14 +65,14 @@ parse_registry() {
     local file="$1"
 
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "
-import json, sys
+        SPEAR_PARSE_FILE="$file" python3 -c "
+import json, sys, os
 try:
-    data = json.load(open('$file'))
+    data = json.load(open(os.environ['SPEAR_PARSE_FILE']))
     for fn in data.get('functions', []):
         name = fn.get('name', '')
         script = fn.get('script', '')
-        active = 'true' if fn.get('active', True) else 'false'
+        active = 'true' if fn.get('enabled', True) else 'false'
         if name and script:
             print(f'{name}|{script}|{active}')
 except Exception as e:
@@ -81,13 +82,13 @@ except Exception as e:
     fi
 
     if command -v node >/dev/null 2>&1; then
-        node -e "
+        SPEAR_PARSE_FILE="$file" node -e "
 try {
-    const d = JSON.parse(require('fs').readFileSync('$file','utf8'));
+    const d = JSON.parse(require('fs').readFileSync(process.env.SPEAR_PARSE_FILE,'utf8'));
     for (const fn of (d.functions || [])) {
         const name = fn.name || '';
         const script = fn.script || '';
-        const active = fn.active !== false ? 'true' : 'false';
+        const active = fn.enabled !== false ? 'true' : 'false';
         if (name && script) console.log(name + '|' + script + '|' + active);
     }
 } catch(e) { process.exit(1); }
@@ -95,10 +96,10 @@ try {
     fi
 
     if command -v jq >/dev/null 2>&1; then
-        jq -r '.functions[]? | [.name // "", .script // "", if .active == false then "false" else "true" end] | join("|")' "$file" 2>/dev/null && return 0
+        jq -r '.functions[]? | [.name // "", .script // "", if .enabled == false then "false" else "true" end] | join("|")' "$file" 2>/dev/null && return 0
     fi
 
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no JSON parser: need python3, node, or jq)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no JSON parser: need python3, node, or jq)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 }
 
@@ -116,19 +117,19 @@ get_threshold() {
     fi
 
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "
-import json
-data = json.load(open('$rfile'))
-entry = data.get('$name', {})
+        SPEAR_RATCHET_FILE="$rfile" SPEAR_THRESHOLD_NAME="$name" python3 -c "
+import json, os
+data = json.load(open(os.environ['SPEAR_RATCHET_FILE']))
+entry = data.get(os.environ['SPEAR_THRESHOLD_NAME'], {})
 if isinstance(entry, dict) and 'value' in entry:
     print(str(entry['value']) + '|' + entry.get('direction', 'floor'))
 " 2>/dev/null && return 0
     fi
 
     if command -v node >/dev/null 2>&1; then
-        node -e "
-const d = JSON.parse(require('fs').readFileSync('$rfile','utf8'));
-const e = d['$name'];
+        SPEAR_RATCHET_FILE="$rfile" SPEAR_THRESHOLD_NAME="$name" node -e "
+const d = JSON.parse(require('fs').readFileSync(process.env.SPEAR_RATCHET_FILE,'utf8'));
+const e = d[process.env.SPEAR_THRESHOLD_NAME];
 if (e && typeof e === 'object' && 'value' in e) {
     console.log(e.value + '|' + (e.direction || 'floor'));
 }
@@ -148,7 +149,7 @@ if (e && typeof e === 'object' && 'value' in e) {
 FUNCTIONS=$(parse_registry "$REGISTRY")
 
 if [ -z "$FUNCTIONS" ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no fitness functions defined)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (no fitness functions defined)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 fi
 
@@ -164,7 +165,7 @@ while IFS='|' read -r fname fscript factive; do
     # Skip inactive functions
     if [ "$factive" = "false" ]; then
         SKIPPED=$((SKIPPED + 1))
-        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     ${fname}: skipped (inactive)${RESET}\n"
+        MESSAGES="${MESSAGES}${YELLOW}[SPEAR]     ${fname}: skipped (inactive)${RESET}${NL}"
         continue
     fi
 
@@ -174,7 +175,7 @@ while IFS='|' read -r fname fscript factive; do
     # Check script exists
     if [ ! -f "$SCRIPT_PATH" ]; then
         FAILED=$((FAILED + 1))
-        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: FAIL — script not found (${fscript})${RESET}\n"
+        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: FAIL — script not found (${fscript})${RESET}${NL}"
         continue
     fi
 
@@ -189,7 +190,7 @@ while IFS='|' read -r fname fscript factive; do
     # Validate numeric output
     if [ -z "$MEASURED" ] || ! echo "$MEASURED" | grep -Eq '^-?[0-9]+\.?[0-9]*$'; then
         FAILED=$((FAILED + 1))
-        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: FAIL — non-numeric output '${MEASURED}'${RESET}\n"
+        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: FAIL — non-numeric output '${MEASURED}'${RESET}${NL}"
         continue
     fi
 
@@ -199,38 +200,38 @@ while IFS='|' read -r fname fscript factive; do
     if [ -z "$THRESHOLD_RAW" ]; then
         # No threshold defined — just report the value as passed
         PASSED=$((PASSED + 1))
-        MESSAGES="${MESSAGES}${GREEN}[SPEAR]     ${fname}: ${MEASURED} (no threshold — pass)${RESET}\n"
+        MESSAGES="${MESSAGES}${GREEN}[SPEAR]     ${fname}: ${MEASURED} (no threshold — pass)${RESET}${NL}"
         continue
     fi
 
     THRESHOLD_VALUE="${THRESHOLD_RAW%%|*}"
     DIRECTION="${THRESHOLD_RAW#*|}"
 
-    # Compare using awk for floating point
+    # Compare using awk for floating point (use -v to avoid code injection)
     case "$DIRECTION" in
         floor)
             # measured >= threshold
-            PASS=$(awk "BEGIN { print ($MEASURED >= $THRESHOLD_VALUE) ? 1 : 0 }")
+            PASS=$(awk -v m="$MEASURED" -v t="$THRESHOLD_VALUE" 'BEGIN { print (m >= t) ? 1 : 0 }')
             OP=">="
             ;;
         ceiling)
             # measured <= threshold
-            PASS=$(awk "BEGIN { print ($MEASURED <= $THRESHOLD_VALUE) ? 1 : 0 }")
+            PASS=$(awk -v m="$MEASURED" -v t="$THRESHOLD_VALUE" 'BEGIN { print (m <= t) ? 1 : 0 }')
             OP="<="
             ;;
         *)
             # Default to floor
-            PASS=$(awk "BEGIN { print ($MEASURED >= $THRESHOLD_VALUE) ? 1 : 0 }")
+            PASS=$(awk -v m="$MEASURED" -v t="$THRESHOLD_VALUE" 'BEGIN { print (m >= t) ? 1 : 0 }')
             OP=">="
             ;;
     esac
 
     if [ "$PASS" -eq 1 ]; then
         PASSED=$((PASSED + 1))
-        MESSAGES="${MESSAGES}${GREEN}[SPEAR]     ${fname}: ${MEASURED} ${OP} ${THRESHOLD_VALUE} (${DIRECTION}) — pass${RESET}\n"
+        MESSAGES="${MESSAGES}${GREEN}[SPEAR]     ${fname}: ${MEASURED} ${OP} ${THRESHOLD_VALUE} (${DIRECTION}) — pass${RESET}${NL}"
     else
         FAILED=$((FAILED + 1))
-        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: ${MEASURED} ${OP} ${THRESHOLD_VALUE} (${DIRECTION}) — FAIL${RESET}\n"
+        MESSAGES="${MESSAGES}${RED}[SPEAR]     ${fname}: ${MEASURED} ${OP} ${THRESHOLD_VALUE} (${DIRECTION}) — FAIL${RESET}${NL}"
     fi
 
 done <<< "$FUNCTIONS"
@@ -239,16 +240,16 @@ done <<< "$FUNCTIONS"
 # Report
 # ---------------------------------------------------------------------------
 if [ "$TOTAL" -eq 0 ]; then
-    printf "${YELLOW}[SPEAR] %-20s SKIP %s (all fitness functions inactive)${RESET}\n" "${CHECKER_NAME}:" "⊘"
+    printf "${YELLOW}[SPEAR] %-20s SKIP %s (all fitness functions inactive)${RESET}${NL}" "${CHECKER_NAME}:" "⊘"
     exit 0
 fi
 
 if [ "$FAILED" -gt 0 ]; then
-    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (%d/%d passed, %d failed)${RESET}\n" "${CHECKER_NAME}:" "✗" "$PASSED" "$TOTAL" "$FAILED"
-    printf "$MESSAGES"
+    printf "${RED}${BOLD}[SPEAR] %-20s FAIL %s (%d/%d passed, %d failed)${RESET}${NL}" "${CHECKER_NAME}:" "✗" "$PASSED" "$TOTAL" "$FAILED"
+    printf '%s' "$MESSAGES"
     exit 1
 else
-    printf "${GREEN}[SPEAR] %-20s PASS %s (%d/%d passed)${RESET}\n" "${CHECKER_NAME}:" "✓" "$PASSED" "$TOTAL"
-    printf "$MESSAGES"
+    printf "${GREEN}[SPEAR] %-20s PASS %s (%d/%d passed)${RESET}${NL}" "${CHECKER_NAME}:" "✓" "$PASSED" "$TOTAL"
+    printf '%s' "$MESSAGES"
     exit 0
 fi

@@ -39,6 +39,12 @@ for arg in "$@"; do
   esac
 done
 
+# Validate adapter value
+case "$ADAPTER" in
+  auto|claude-code|cursor|copilot|antigravity|kiro|generic) ;;
+  *) fail "Invalid adapter: $ADAPTER. Valid: claude-code, cursor, copilot, antigravity, kiro, generic" ;;
+esac
+
 # ─── Preflight ────────────────────────────────────────────
 info "SPEAR Framework Installer v1.0.0"
 echo ""
@@ -102,20 +108,20 @@ if [ -f ".spear/SPEAR.md" ] && [ -d "adapters" ]; then
 else
   # Download from GitHub
   SPEAR_SOURCE="remote"
-  TMPDIR=$(mktemp -d)
-  trap 'rm -rf "$TMPDIR"' EXIT
+  SPEAR_TMPDIR=$(mktemp -d)
+  trap 'rm -rf "$SPEAR_TMPDIR"' EXIT
 
   info "Downloading SPEAR framework..."
   if command -v curl &>/dev/null; then
-    curl -fsSL "https://github.com/migueljnew-droid/spear-framework/archive/refs/heads/main.tar.gz" -o "$TMPDIR/spear.tar.gz"
+    curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/migueljnew-droid/spear-framework/archive/refs/heads/main.tar.gz" -o "$SPEAR_TMPDIR/spear.tar.gz"
   elif command -v wget &>/dev/null; then
-    wget -q "https://github.com/migueljnew-droid/spear-framework/archive/refs/heads/main.tar.gz" -O "$TMPDIR/spear.tar.gz"
+    wget -q "https://github.com/migueljnew-droid/spear-framework/archive/refs/heads/main.tar.gz" -O "$SPEAR_TMPDIR/spear.tar.gz"
   else
     fail "Neither curl nor wget found. Install one and retry."
   fi
 
-  tar -xzf "$TMPDIR/spear.tar.gz" -C "$TMPDIR"
-  SPEAR_REPO="$TMPDIR/spear-framework-main"
+  tar -xzf "$SPEAR_TMPDIR/spear.tar.gz" -C "$SPEAR_TMPDIR"
+  SPEAR_REPO="$SPEAR_TMPDIR/spear-framework-main"
 
   if [ ! -d "$SPEAR_REPO/.spear" ]; then
     fail "Download failed — .spear/ not found in archive"
@@ -130,27 +136,27 @@ if [ "$SPEAR_SOURCE" = "local" ]; then
   ok ".spear/ already present"
 else
   # Copy .spear/ to project root
-  cp -r "$SPEAR_REPO/.spear" .spear/
+  cp -r "$SPEAR_REPO/.spear/." .spear/
   ok ".spear/ installed"
 fi
 
-# Update config with detected language
+# Update config with detected language (use env vars to avoid shell injection)
 if command -v python3 &>/dev/null; then
-  python3 -c "
-import json
+  SPEAR_LANGUAGE="$LANGUAGE" SPEAR_ADAPTER="$ADAPTER" python3 -c "
+import json, os
 with open('.spear/config.json', 'r') as f:
     config = json.load(f)
-config['project']['language'] = '$LANGUAGE'
-config['adapter'] = '$ADAPTER'
+config['project']['language'] = os.environ['SPEAR_LANGUAGE']
+config['adapter'] = os.environ['SPEAR_ADAPTER']
 with open('.spear/config.json', 'w') as f:
     json.dump(config, f, indent=2)
 " 2>/dev/null && ok "Config updated (language=$LANGUAGE, adapter=$ADAPTER)"
 elif command -v node &>/dev/null; then
-  node -e "
+  SPEAR_LANGUAGE="$LANGUAGE" SPEAR_ADAPTER="$ADAPTER" node -e "
 const fs = require('fs');
 const config = JSON.parse(fs.readFileSync('.spear/config.json', 'utf8'));
-config.project.language = '$LANGUAGE';
-config.adapter = '$ADAPTER';
+config.project.language = process.env.SPEAR_LANGUAGE;
+config.adapter = process.env.SPEAR_ADAPTER;
 fs.writeFileSync('.spear/config.json', JSON.stringify(config, null, 2));
 " 2>/dev/null && ok "Config updated (language=$LANGUAGE, adapter=$ADAPTER)"
 else
@@ -293,3 +299,8 @@ echo "  3. Read .spear/SPEAR.md for the full methodology"
 echo ""
 info "Documentation: https://github.com/migueljnew-droid/spear-framework"
 echo ""
+
+# Verify installation
+if [ ! -f ".spear/SPEAR.md" ]; then
+    fail "Installation verification failed — .spear/SPEAR.md not found"
+fi

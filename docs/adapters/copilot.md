@@ -7,9 +7,12 @@ Configure SPEAR to work with GitHub Copilot via `copilot-instructions.md` and Co
 ## Installation
 
 ```bash
-# Generate Copilot adapter files
-spear adapt copilot
+# Install SPEAR with Copilot adapter
+./install.sh --adapter=copilot
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/copilot/`.
 
 This creates or updates:
 - `.github/copilot-instructions.md` — Project-level Copilot instructions

@@ -14,7 +14,7 @@ through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
 
 1. **Phases are sequential.** Never skip a phase. Never start Execute before Plan is approved.
 2. **Audit failure returns to Execute.** Fix findings, then re-audit.
-3. **Ratchet never loosens silently.** Every threshold change requires justification logged in `ratchet/history.jsonl`.
+3. **Ratchet never loosens silently.** Every threshold change requires justification logged in `.spear/ratchet/history.jsonl`.
 4. **Memory persists.** Read `.spear/memory/` before every Spec and Plan phase.
 5. **Deviations are logged, not hidden.** Use `.spear/templates/execute/deviation-log.md`.
 

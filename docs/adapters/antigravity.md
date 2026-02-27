@@ -7,9 +7,12 @@ Configure SPEAR to work with Antigravity's rules, workflows, and agent system.
 ## Installation
 
 ```bash
-# Generate Antigravity adapter files
-spear adapt antigravity
+# Install SPEAR with Antigravity adapter
+./install.sh --adapter=antigravity
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/antigravity/`.
 
 This creates or updates:
 - `.antigravity/rules.md` — Project rules with SPEAR context

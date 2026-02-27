@@ -7,9 +7,12 @@ Configure SPEAR to work with Kiro's steering files, hooks, and spec system.
 ## Installation
 
 ```bash
-# Generate Kiro adapter files
-spear adapt kiro
+# Install SPEAR with Kiro adapter
+./install.sh --adapter=kiro
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/kiro/`.
 
 This creates or updates:
 - `.kiro/steering.md` — Project steering with SPEAR context

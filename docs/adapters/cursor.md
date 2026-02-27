@@ -7,9 +7,12 @@ Configure SPEAR to work with Cursor via `.cursorrules` and project-level setting
 ## Installation
 
 ```bash
-# Generate Cursor adapter files
-spear adapt cursor
+# Install SPEAR with Cursor adapter
+./install.sh --adapter=cursor
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/cursor/`.
 
 This creates or updates:
 - `.cursorrules` — Project rules with SPEAR context

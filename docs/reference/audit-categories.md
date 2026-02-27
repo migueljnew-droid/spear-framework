@@ -225,110 +225,118 @@ Starts at 100, deductions per finding:
 
 ---
 
-## 5. Testing
+## 5. Dependencies
 
 ### What It Checks
 
-- **Coverage:** What percentage of lines and branches are covered by tests?
-- **Critical path coverage:** Are the most important code paths tested?
-- **Edge cases:** Are boundary conditions, null inputs, and error paths tested?
-- **Test isolation:** Do tests share state? Can they run in any order?
-- **Test quality:** Do tests actually assert meaningful behavior (not just "it doesn't crash")?
-- **Test naming:** Do test names describe the expected behavior?
+- **Known vulnerabilities:** Are there CVEs in third-party packages (npm audit, cargo audit, pip-audit)?
+- **License compatibility:** Do dependency licenses conflict with the project license?
+- **Outdated packages:** Are there major version updates available with security fixes?
+- **Supply chain risks:** Are dependencies well-maintained? Any typosquatting risks?
+- **Tree depth:** Is the dependency tree excessively deep or duplicated?
+- **Lock file integrity:** Is the lock file in sync with the manifest?
 
 ### Scoring
 
 Starts at 100, deductions per finding:
-- CRITICAL: -25 (zero tests for critical business logic)
-- HIGH: -10 (missing edge case tests, shared test state)
-- MEDIUM: -3 (poor test names, low branch coverage)
-- LOW: -1 (test organization suggestions)
+- CRITICAL: -30 (known exploited CVE, license violation)
+- HIGH: -15 (high-severity CVE, unmaintained critical dependency)
+- MEDIUM: -5 (outdated major version, moderate CVE)
+- LOW: -1 (minor version behind, optimization opportunity)
 
 ### Example Findings
 
 ```
-[CRITICAL] TEST-001: No tests for payment processing service
-  File: src/services/paymentService.js
-  Impact: 0% coverage on business-critical code that handles money
-  Fix: Write tests for createPayment, confirmPayment, handleWebhook
+[CRITICAL] DEP-001: Critical CVE in dependency
+  Package: lodash@4.17.15
+  CVE: CVE-2021-23337 (prototype pollution)
+  Impact: Remote code execution via crafted input
+  Fix: Upgrade to lodash@4.17.21: npm install lodash@4.17.21
 
-[HIGH] TEST-002: Missing test for concurrent duplicate registration
-  File: tests/auth.test.js
-  Gap: What happens when two requests register the same email simultaneously?
-  Fix: Add test with Promise.all([register(email), register(email)])
+[HIGH] DEP-002: Unmaintained critical dependency
+  Package: request@2.88.2
+  Issue: Deprecated, no security patches since 2020
+  Impact: Known vulnerabilities will never be patched
+  Fix: Replace with node-fetch or axios
 
-[HIGH] TEST-003: Tests share database state
-  File: tests/payments.test.js
-  Issue: Tests insert data but don't clean up — test order affects results
-  Fix: Add beforeEach() to reset test database or use transactions
+[HIGH] DEP-003: License incompatibility
+  Package: gpl-module@1.0.0
+  License: GPL-3.0
+  Project license: MIT
+  Impact: GPL requires derivative works to also be GPL
+  Fix: Replace with MIT/Apache-2.0 licensed alternative
 
-[MEDIUM] TEST-004: Test name doesn't describe behavior
-  File: tests/auth.test.js:45
-  Current: it('test login')
-  Better: it('should return 401 when password is incorrect')
+[MEDIUM] DEP-004: Major version behind
+  Package: express@4.18.2
+  Latest: express@5.0.1
+  Note: Express 5 includes security improvements and breaking changes
+  Fix: Review migration guide and upgrade
 
-[MEDIUM] TEST-005: Branch coverage at 62% for auth middleware
-  File: src/middleware/auth.js
-  Missing branches: expired token path, malformed token path
-  Fix: Add tests for jwt.verify() failure modes
+[MEDIUM] DEP-005: Lock file out of sync
+  File: package-lock.json
+  Issue: package.json specifies "^3.0.0" but lock has 2.8.1
+  Fix: Run npm install to regenerate lock file
 
-[LOW] TEST-006: Consider extracting test helpers
-  File: tests/payments.test.js
-  Note: createTestUser() and createTestPayment() duplicated across 4 test files
-  Fix: Extract to tests/helpers.js
+[LOW] DEP-006: Duplicate dependency in tree
+  Package: debug (appears 4 times at different versions)
+  Impact: Increases bundle size by ~12KB
+  Fix: Run npm dedupe
 ```
 
 ---
 
-## 6. Spec Compliance
+## 6. Documentation
 
 ### What It Checks
 
-- **Acceptance criteria coverage:** Does every criterion from the spec have corresponding code?
-- **Test coverage of criteria:** Does every criterion have a corresponding test?
-- **Constraint satisfaction:** Are all technical constraints met?
-- **Scope adherence:** Was anything built that's listed as "out of scope"?
-- **Non-functional requirements:** Are performance, security, and other NFRs met?
+- **API documentation:** Are public functions and endpoints documented with parameters and return types?
+- **README accuracy:** Does the README match the current implementation?
+- **Changelog:** Are notable changes recorded with dates and versions?
+- **Architecture decisions:** Are significant decisions documented (ADRs)?
+- **Inline comments:** Is complex logic explained with comments?
+- **Setup instructions:** Can a new developer follow the docs to get running?
 
 ### Scoring
 
 Starts at 100, deductions per finding:
-- CRITICAL: -25 (acceptance criterion not implemented)
-- HIGH: -10 (criterion implemented but not tested, constraint violated)
-- MEDIUM: -3 (NFR partially met, minor scope concern)
-- LOW: -1 (implementation differs from spec description but meets intent)
+- CRITICAL: -25 (public API completely undocumented, README describes nonexistent features)
+- HIGH: -10 (missing JSDoc on public functions, outdated setup instructions)
+- MEDIUM: -3 (missing inline comments on complex logic, minor README gaps)
+- LOW: -1 (style improvements, optional documentation enhancements)
 
 ### Example Findings
 
 ```
-[CRITICAL] SPEC-001: Acceptance criterion not implemented
-  Spec: spec-001, Criterion 8
-  Expected: "Rate limiter blocks after 5 failed login attempts per minute"
-  Actual: No rate limiting code found
-  Fix: Implement rate limiting per the spec
+[CRITICAL] DOC-001: Public API endpoint undocumented
+  File: src/routes/v2/payments.js
+  Issue: 4 endpoints with no JSDoc, no OpenAPI spec, no README mention
+  Impact: Consumers cannot discover or use the API correctly
+  Fix: Add JSDoc to each route handler, update API section in README
 
-[HIGH] SPEC-002: Acceptance criterion implemented but no test
-  Spec: spec-001, Criterion 3
-  Expected: "Passwords are hashed with bcrypt (cost factor 12+)"
-  Implementation: Found in src/utils/hash.js
-  Missing: No test verifying cost factor >= 12
-  Fix: Add test asserting bcrypt.getRounds(hash) >= 12
+[HIGH] DOC-002: Public function missing JSDoc documentation
+  File: src/utils/hash.js:12
+  Code: function hashPassword(password, rounds) { ... }
+  Fix: Add JSDoc with @param {string} password, @param {number} rounds, @returns {Promise<string>}
 
-[HIGH] SPEC-003: Constraint violated
-  Spec: spec-001, Constraint: "Must use PostgreSQL"
-  Actual: Redis used for session storage (not listed in constraints)
-  Fix: Add Redis to constraints or switch to PostgreSQL-based sessions
+[HIGH] DOC-003: README setup instructions outdated
+  File: README.md:45
+  Issue: References .env.example but file was renamed to .env.template
+  Impact: New developers cannot complete setup
+  Fix: Update README to reference .env.template
 
-[MEDIUM] SPEC-004: Non-functional requirement partially met
-  Spec: spec-001, NFR: "Auth endpoint response time under 500ms"
-  Actual: Register endpoint averages 450ms, login averages 380ms
-  Note: Close to limit — monitor in production
-  Suggestion: Consider caching bcrypt rounds or reducing cost factor to 11
+[MEDIUM] DOC-004: Complex algorithm without explanation
+  File: src/services/pricingService.js:67
+  Code: 45 lines of discount calculation with no comments
+  Fix: Add block comment explaining the discount tier logic
 
-[LOW] SPEC-005: Implementation approach differs from spec implication
-  Spec: spec-001 implies separate /api/register and /api/login endpoints
-  Actual: Combined under /api/auth/register and /api/auth/login
-  Assessment: Functionally equivalent, better organized. Not a violation.
+[MEDIUM] DOC-005: CHANGELOG not updated for recent release
+  File: CHANGELOG.md
+  Issue: Last entry is v1.2.0 but current version is v1.3.1
+  Fix: Add entries for v1.2.1, v1.3.0, and v1.3.1
+
+[LOW] DOC-006: Consider adding architecture diagram
+  File: docs/
+  Suggestion: A system diagram would help new contributors understand component relationships
 ```
 
 ---
@@ -337,9 +345,9 @@ Starts at 100, deductions per finding:
 
 | Category | Focus | Most Common CRITICAL | Most Common HIGH |
 |----------|-------|---------------------|-----------------|
+| Security | Safety | Injection, secrets, auth bypass | Missing validation |
+| Dependencies | Supply chain | Exploited CVEs, license violations | Unmaintained packages |
+| Performance | Speed | Unbounded queries, memory leaks | N+1 patterns |
+| Code Quality | Maintainability | Unhandled errors on critical paths | High complexity |
+| Documentation | Clarity | Undocumented public APIs | Missing JSDoc |
 | Architecture | Structure | Circular dependencies | Pattern violations |
-| Code Quality | Maintainability | Unhandled errors | Missing documentation |
-| Security | Safety | Injection, secrets | Missing validation |
-| Performance | Speed | Unbounded queries | N+1 patterns |
-| Testing | Confidence | Zero coverage on critical code | Missing edge cases |
-| Spec Compliance | Correctness | Unimplemented criteria | Untested criteria |

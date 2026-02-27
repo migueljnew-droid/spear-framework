@@ -124,6 +124,12 @@ Learn from the cycle. Tighten thresholds. Record decisions.
 │   ├── history.jsonl     ← Append-only change log
 │   ├── thresholds/       ← Per-metric config
 │   └── rules/            ← Auto-generated rules (YAML)
+├── output/               ← Phase output artifacts
+│   ├── spec/
+│   ├── plan/
+│   ├── execute/
+│   ├── audit/
+│   └── ratchet/
 ├── memory/
 │   ├── index.json        ← Searchable memory index
 │   ├── decisions/        ← Architecture Decision Records

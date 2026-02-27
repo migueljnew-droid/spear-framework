@@ -7,9 +7,12 @@ Configure SPEAR to work with Claude Code via CLAUDE.md files, slash commands, an
 ## Installation
 
 ```bash
-# Generate Claude Code adapter files
-spear adapt claude-code
+# Install SPEAR with Claude Code adapter
+./install.sh --adapter=claude-code
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/claude-code/`.
 
 This creates or updates:
 - `CLAUDE.md` — Project instructions with SPEAR context

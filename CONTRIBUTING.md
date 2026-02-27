@@ -40,11 +40,8 @@ Thank you for your interest in contributing to SPEAR! This framework thrives on 
 Before submitting a PR:
 
 ```bash
-# Verify all templates have valid YAML frontmatter
-./tests/validate-templates.sh
-
-# Test hooks against sample files
-./tests/test-hooks.sh
+# Run the pre-commit hook manually
+bash hooks/pre-commit
 
 # Verify SPEAR.md is under 300 lines
 wc -l .spear/SPEAR.md

@@ -1,6 +1,6 @@
 # Upgrade: Custom Audit Categories
 
-SPEAR ships with six audit categories: Architecture, Code Quality, Security, Performance, Testing, and Spec Compliance. For domain-specific needs, you can add custom categories.
+SPEAR ships with six audit categories: Security, Dependencies, Performance, Code Quality, Documentation, and Architecture. For domain-specific needs, you can add custom categories.
 
 ---
 
@@ -72,12 +72,12 @@ Each check needs:
 {
   "audit": {
     "categories": [
-      "architecture",
-      "code_quality",
       "security",
+      "dependencies",
       "performance",
-      "testing",
-      "spec_compliance",
+      "code_quality",
+      "documentation",
+      "architecture",
       "accessibility"
     ]
   }
@@ -258,12 +258,12 @@ spear ratchet status
 
 ```
 Category          Floor    Ceiling    Status
-architecture      92       98         Improving
-code_quality      88       95         Improving
 security          95       100        Improving
+dependencies      98       100        Improving
 performance       90       95         Improving
-testing           85       95         Needs focus
-spec_compliance   100      100        MASTERED
+code_quality      88       95         Improving
+documentation     85       95         Needs focus
+architecture      92       98         Improving
 accessibility     72       90         NEW — Needs focus
 data_privacy      80       95         NEW — Improving
 ```

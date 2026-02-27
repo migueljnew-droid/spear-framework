@@ -7,9 +7,12 @@ Use SPEAR with any LLM — ChatGPT, Gemini, local models, or any chat interface.
 ## Installation
 
 ```bash
-# Generate generic adapter output
-spear adapt generic
+# Install SPEAR with generic adapter
+./install.sh --adapter=generic
 ```
+
+> **Note:** The `spear adapt` CLI commands shown in this guide are planned for v2.0.
+> For now, use `install.sh` or manually copy adapter files from `adapters/generic/`.
 
 This generates:
 - `.spear/prompts/system-prompt.md` — System prompt for any LLM

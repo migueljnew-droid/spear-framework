@@ -43,8 +43,10 @@ SPEAR is a drop-in development methodology that adds structure, audit gates, and
 ## 30-Second Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/migueljnew-droid/spear-framework/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/migueljnew-droid/spear-framework/main/install.sh | bash
 ```
+
+> **Security note:** We recommend cloning and inspecting the installer before running it.
 
 This auto-detects your project language and AI tool, installs `.spear/`, configures hooks, and sets up your adapter.
 
@@ -54,7 +56,7 @@ Or manually:
 git clone https://github.com/migueljnew-droid/spear-framework.git
 cp -r spear-framework/.spear your-project/.spear
 cp -r spear-framework/hooks your-project/hooks
-cd your-project && ./hooks/install.sh
+cd your-project && ./install.sh
 ```
 
 ## The 6 Audit Categories
@@ -125,7 +127,7 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 | Project memory | ✅ | ❌ | ❌ | ❌ |
 | Multi-tool support | ✅ 6 tools | ❌ Claude only | ❌ Claude only | Tool-specific |
 | Pre-commit hooks | ✅ | ❌ | ❌ | ❌ |
-| Zero dependencies | ✅ | ✅ | ❌ | ✅ |
+| No package manager | ✅ | ✅ | ❌ | ✅ |
 
 ## Quick Start Example
 
@@ -168,6 +170,16 @@ git commit -m "feat(auth): add JWT token generation"
 │   └── ratchet/           ← Ratchet entry, rule proposal, retrospective
 ├── agents/                ← AI agent role definitions
 ├── ratchet/               ← Threshold state + history + rules
+│   ├── ratchet.json       ← Current thresholds
+│   ├── history.jsonl      ← Append-only change log
+│   ├── thresholds/        ← Per-metric config
+│   └── rules/             ← Auto-generated rules (YAML)
+├── output/                ← Phase output artifacts
+│   ├── spec/
+│   ├── plan/
+│   ├── execute/
+│   ├── audit/
+│   └── ratchet/
 ├── memory/                ← Project knowledge base
 └── fitness/               ← Automated fitness functions
 
@@ -191,7 +203,7 @@ install.sh                 ← One-command installer
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 The most impactful contributions:
-- **Audit rules** from real-world findings (use the [audit rule proposal](../../issues/new?template=audit_rule_proposal.md) template)
+- **Audit rules** from real-world findings (use the [audit rule proposal](https://github.com/migueljnew-droid/spear-framework/issues/new?template=audit_rule_proposal.md) template)
 - **Fitness functions** for different ecosystems
 - **Adapter improvements** for your favorite AI tool
 - **Language-specific hook improvements**

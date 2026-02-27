@@ -219,6 +219,14 @@ check_custom() {
     fi
 }
 
+# ---- Validate environment inputs against path traversal --------------------
+case "${SPEAR_BUNDLE_DIR:-}" in
+    *..*) echo -e "${RED}FAIL${NC}: SPEAR_BUNDLE_DIR contains path traversal"; exit 1 ;;
+esac
+case "${SPEAR_BUNDLE_BIN:-}" in
+    *..*) echo -e "${RED}FAIL${NC}: SPEAR_BUNDLE_BIN contains path traversal"; exit 1 ;;
+esac
+
 # ---- Main -------------------------------------------------------------------
 echo "=== SPEAR Fitness: Bundle Size ==="
 echo "Project: $PROJECT_ROOT"

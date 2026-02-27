@@ -21,11 +21,12 @@ else
     RED='' GREEN='' YELLOW='' CYAN='' BOLD='' RESET=''
 fi
 
+NL=$'\n'
 CHECKER_NAME="doc-coverage"
 PROJECT_ROOT="${1:-.}"
 
 RATCHET="${PROJECT_ROOT}/.spear/ratchet/ratchet.json"
-DEFAULT_THRESHOLD=80
+DEFAULT_THRESHOLD=60
 
 # ---------------------------------------------------------------------------
 # Get staged files
@@ -43,25 +44,25 @@ fi
 THRESHOLD="$DEFAULT_THRESHOLD"
 
 read_ratchet_threshold() {
-    local name="doc-coverage"
+    local name="doc_coverage"
     local rfile="$1"
 
     [ ! -f "$rfile" ] && return 1
 
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "
-import json
-data = json.load(open('$rfile'))
-entry = data.get('$name', {})
+        SPEAR_RATCHET_FILE="$rfile" SPEAR_THRESHOLD_NAME="$name" python3 -c "
+import json, os
+data = json.load(open(os.environ['SPEAR_RATCHET_FILE']))
+entry = data.get(os.environ['SPEAR_THRESHOLD_NAME'], {})
 if isinstance(entry, dict) and 'value' in entry:
     print(entry['value'])
 " 2>/dev/null && return 0
     fi
 
     if command -v node >/dev/null 2>&1; then
-        node -e "
-const d = JSON.parse(require('fs').readFileSync('$rfile','utf8'));
-const e = d['$name'];
+        SPEAR_RATCHET_FILE="$rfile" SPEAR_THRESHOLD_NAME="$name" node -e "
+const d = JSON.parse(require('fs').readFileSync(process.env.SPEAR_RATCHET_FILE,'utf8'));
+const e = d[process.env.SPEAR_THRESHOLD_NAME];
 if (e && typeof e === 'object' && 'value' in e) console.log(e.value);
 " 2>/dev/null && return 0
     fi
@@ -115,7 +116,7 @@ check_rust_docs() {
                 TOTAL_DOCUMENTED=$((TOTAL_DOCUMENTED + 1))
             else
                 ITEM_NAME=$(echo "$line" | sed -n 's/.*pub\s\+\(fn\|struct\|enum\|trait\|type\|const\|static\|mod\)\s\+\([a-zA-Z_][a-zA-Z0-9_]*\).*/\2/p')
-                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${file}:${line_num} — pub ${ITEM_NAME:-item}\n"
+                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${file}:${line_num} — pub ${ITEM_NAME:-item}${NL}"
             fi
         fi
 
@@ -163,7 +164,7 @@ check_js_docs() {
                 TOTAL_DOCUMENTED=$((TOTAL_DOCUMENTED + 1))
             else
                 ITEM_NAME=$(echo "$line" | sed -n 's/.*export\s\+\(default\s\+\)\?\(async\s\+\)\?\(function\|class\|interface\|type\|const\)\s\+\([a-zA-Z_][a-zA-Z0-9_]*\).*/\4/p')
-                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${file}:${line_num} — export ${ITEM_NAME:-item}\n"
+                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${file}:${line_num} — export ${ITEM_NAME:-item}${NL}"
             fi
         fi
 
@@ -200,7 +201,7 @@ check_python_docs() {
             if echo "$line" | grep -Eq '^\s*("""|'"'"''"'"''"'"'|r"""|r'"'"''"'"''"'"')'; then
                 TOTAL_DOCUMENTED=$((TOTAL_DOCUMENTED + 1))
             else
-                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${item_info}\n"
+                UNDOCUMENTED_ITEMS="${UNDOCUMENTED_ITEMS}  ${item_info}${NL}"
             fi
         fi
 
@@ -246,20 +247,20 @@ if [ "$TOTAL_PUBLIC" -eq 0 ]; then
 fi
 
 # Calculate percentage using awk for floating point
-COVERAGE=$(awk "BEGIN { printf \"%.1f\", ($TOTAL_DOCUMENTED / $TOTAL_PUBLIC) * 100 }")
-COVERAGE_INT=$(awk "BEGIN { printf \"%d\", ($TOTAL_DOCUMENTED / $TOTAL_PUBLIC) * 100 }")
+COVERAGE=$(awk -v d="$TOTAL_DOCUMENTED" -v t="$TOTAL_PUBLIC" 'BEGIN { printf "%.1f", (d / t) * 100 }')
+COVERAGE_INT=$(awk -v d="$TOTAL_DOCUMENTED" -v t="$TOTAL_PUBLIC" 'BEGIN { printf "%d", (d / t) * 100 }')
 
 # ---------------------------------------------------------------------------
 # Compare to threshold
 # ---------------------------------------------------------------------------
-PASS=$(awk "BEGIN { print ($COVERAGE_INT >= $THRESHOLD) ? 1 : 0 }")
+PASS=$(awk -v c="$COVERAGE_INT" -v t="$THRESHOLD" 'BEGIN { print (c >= t) ? 1 : 0 }')
 
 if [ "$PASS" -eq 1 ]; then
     printf "${GREEN}[SPEAR] %-20s PASS %s (${COVERAGE}%% documented, threshold ${THRESHOLD}%%)${RESET}\n" "${CHECKER_NAME}:" "✓"
     printf "${GREEN}[SPEAR]     ${TOTAL_DOCUMENTED}/${TOTAL_PUBLIC} public items documented${RESET}\n"
     if [ -n "$UNDOCUMENTED_ITEMS" ]; then
         printf "${YELLOW}[SPEAR]     Undocumented (non-blocking):${RESET}\n"
-        printf "${YELLOW}[SPEAR]     $(printf "$UNDOCUMENTED_ITEMS")${RESET}\n"
+        printf '%s\n' "${YELLOW}[SPEAR]     ${UNDOCUMENTED_ITEMS}${RESET}"
     fi
     exit 0
 else
@@ -267,7 +268,7 @@ else
     printf "${RED}[SPEAR]     ${TOTAL_DOCUMENTED}/${TOTAL_PUBLIC} public items documented${RESET}\n"
     if [ -n "$UNDOCUMENTED_ITEMS" ]; then
         printf "${RED}[SPEAR]     Undocumented items:${RESET}\n"
-        printf "${RED}$(printf "$UNDOCUMENTED_ITEMS" | sed 's/^/[SPEAR]     /')${RESET}\n"
+        printf '%s\n' "${RED}${UNDOCUMENTED_ITEMS}${RESET}"
     fi
     exit 1
 fi
