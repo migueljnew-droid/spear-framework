@@ -131,6 +131,38 @@ Audit all changes for security vulnerabilities, secret exposure, authentication 
 [Overall security posture assessment]
 ```
 
+## Trail of Bits SAST Integration
+
+When available, invoke Trail of Bits security skills for machine-verifiable analysis beyond checklist-based review. These live at `~/.claude/skills/trailofbits-security/` and provide:
+
+### Static Analysis (use on every audit)
+- **static-analysis/codeql** — Run CodeQL queries against changed files for known vulnerability patterns
+- **static-analysis/semgrep** — Run Semgrep rules for language-specific security checks
+- **static-analysis/sarif-parser** — Parse SARIF output from any SAST tool into findings
+
+### Targeted Analysis (use when relevant)
+- **variant-analysis** — After finding one vulnerability, search the entire codebase for similar patterns
+- **insecure-defaults** — Detect hardcoded credentials, fail-open patterns, insecure default configs
+- **supply-chain-risk-auditor** — Audit dependency supply-chain threats (typosquatting, maintainer changes)
+- **differential-review** — Security-focused diff review using git history for context
+- **fp-check** — Systematic false positive verification with mandatory gate reviews
+- **semgrep-rule-creator** — Create custom detection rules for project-specific vulnerability patterns
+
+### Specialized (use when scope matches)
+- **sharp-edges** — Identify error-prone APIs and footgun designs in the codebase
+- **zeroize-audit** — Detect missing zeroization of secrets in C/C++ and Rust code
+- **constant-time-analysis** — Detect compiler-induced timing side-channels in crypto code
+- **testing-handbook-skills** — Fuzz testing with AFL++, libFuzzer, cargo-fuzz, Atheris + sanitizers
+
+### Ratchet Integration
+Trail of Bits findings should feed into ratchet thresholds:
+```json
+{
+  "sast_critical_findings": { "value": 0, "direction": "ceiling" },
+  "sast_high_findings": { "value": 0, "direction": "ceiling" }
+}
+```
+
 ## Checklist (self-audit before submitting)
 
 - [ ] All changed files reviewed for secrets and credentials
@@ -142,3 +174,6 @@ Audit all changes for security vulnerabilities, secret exposure, authentication 
 - [ ] Every finding has file path, line number, evidence, and fix
 - [ ] Severity classifications are justified
 - [ ] OWASP Top 10 categories considered systematically
+- [ ] Trail of Bits static analysis (CodeQL/Semgrep) run on changed files
+- [ ] Trail of Bits variant analysis run on any discovered vulnerabilities
+- [ ] SAST findings at zero CRITICAL and zero HIGH (or justified)

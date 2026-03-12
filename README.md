@@ -12,10 +12,11 @@
 
 <br /><br />
 
-<img src="https://img.shields.io/badge/version-2.0.0-4d8dff?style=flat-square" alt="v2.0.0" />&nbsp;
+<img src="https://img.shields.io/badge/version-2.1.0-4d8dff?style=flat-square" alt="v2.1.0" />&nbsp;
 <img src="https://img.shields.io/badge/phases-5-4d8dff?style=flat-square" alt="5 Phases" />&nbsp;
 <img src="https://img.shields.io/badge/agents-14-4d8dff?style=flat-square" alt="14 Agents" />&nbsp;
 <img src="https://img.shields.io/badge/audit%20categories-6-4d8dff?style=flat-square" alt="6 Audit Categories" />&nbsp;
+<img src="https://img.shields.io/badge/SAST-CodeQL%20%2B%20Semgrep-4d8dff?style=flat-square" alt="SAST Integration" />&nbsp;
 <img src="https://img.shields.io/badge/AI%20tools-6-4d8dff?style=flat-square" alt="6 AI Tools" />&nbsp;
 <img src="https://img.shields.io/badge/dependencies-0-4d8dff?style=flat-square" alt="Zero Dependencies" />&nbsp;
 <img src="https://img.shields.io/badge/license-MIT-4d8dff?style=flat-square" alt="MIT License" />
@@ -23,7 +24,7 @@
 <br /><br />
 
 **A spec-driven, audit-gated, self-improving development methodology for AI-assisted workflows.**<br />
-Five phases. Six audit categories. One direction: forward.
+Five phases. Six audit categories. Integrated SAST. One direction: forward.
 
 <br />
 
@@ -114,7 +115,7 @@ Every change is reviewed across six independent, parallel categories. Each produ
 
 <table>
 <tr><th>Category</th><th>What It Checks</th></tr>
-<tr><td><img src="https://img.shields.io/badge/-Security-cc0000?style=flat-square" /></td><td>Secrets, injection, auth, OWASP Top 10</td></tr>
+<tr><td><img src="https://img.shields.io/badge/-Security-cc0000?style=flat-square" /></td><td>Secrets, injection, auth, OWASP Top 10, SAST (CodeQL + Semgrep), variant analysis, supply chain audit</td></tr>
 <tr><td><img src="https://img.shields.io/badge/-Dependencies-cc4400?style=flat-square" /></td><td>CVEs, licenses, outdated packages, supply chain</td></tr>
 <tr><td><img src="https://img.shields.io/badge/-Performance-cc6600?style=flat-square" /></td><td>Complexity, bundle size, queries, memory</td></tr>
 <tr><td><img src="https://img.shields.io/badge/-Code%20Quality-2266cc?style=flat-square" /></td><td>Duplication, dead code, naming, error handling</td></tr>
