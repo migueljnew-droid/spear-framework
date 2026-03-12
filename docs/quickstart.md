@@ -1,6 +1,7 @@
 # SPEAR Quickstart: 5 Minutes to Your First Cycle
 
-> **Note:** The `spear` CLI is planned for v2.0. This quickstart shows the target workflow.
+> **SPEAR v2.0** — Now with TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, and worktree isolation.
+> The `spear` CLI is planned for a future release. This quickstart shows the target workflow.
 > For the current manual workflow, see the [adapter guides](adapters/) or use `install.sh` directly.
 
 ## Prerequisites

@@ -1,6 +1,6 @@
 # Phase 3: Execute
 
-The Execute phase is where code gets written. SPEAR does not dictate how you write code — use your preferred AI tool, IDE, or plain text editor. What SPEAR does is track progress, enforce checkpoints, log deviations, and verify fitness functions.
+The Execute phase is where code gets written — under strict discipline. SPEAR enforces TDD (RED-GREEN-REFACTOR per task), verification gates (evidence before claims), worktree isolation (clean baseline), and systematic debugging (no random fixes). Use your preferred AI tool, IDE, or plain text editor — SPEAR controls the process, not the tools.
 
 ---
 
@@ -10,10 +10,12 @@ The Execute phase is where code gets written. SPEAR does not dictate how you wri
 spear execute --plan plan-001 --phase 1
 ```
 
-This does three things:
-1. Loads the plan context (what you're building, fitness functions, dependencies)
-2. Creates a checkpoint tracker for the phase
-3. Sets the phase status to `in_progress`
+This does five things:
+1. Creates a **git worktree** on branch `spear/phase-1-[slug]` for isolation
+2. Runs the **full test suite** to verify a clean baseline (all tests must pass before any changes)
+3. Loads the plan context (what you're building, fitness functions, dependencies)
+4. Creates a checkpoint tracker for the phase
+5. Sets the phase status to `in_progress`
 
 If you're using an adapter, this also updates your tool's configuration:
 
@@ -277,10 +279,101 @@ Repeat the same cycle: build, commit, checkpoint, fitness check.
 
 ---
 
+## TDD Enforcement — The Iron Law
+
+> **No production code without a failing test first.** Code written before a test exists gets deleted. No exceptions.
+
+Every task that produces code must follow the RED-GREEN-REFACTOR cycle:
+
+### RED — Write a Failing Test
+- Write one minimal test demonstrating desired behavior
+- Run it and confirm it **fails for the right reason** (missing feature, not syntax error)
+- If the test passes immediately, you're testing existing functionality — rewrite it
+
+### GREEN — Write Minimal Implementation
+- Write the simplest code that makes the test pass
+- No feature additions beyond what the test requires
+- No refactoring yet
+
+### REFACTOR — Clean Up (only after green)
+- Remove duplication, improve naming, extract helpers if warranted
+- All tests must stay green throughout
+
+### Record the Cycle
+Fill out `.spear/templates/execute/tdd-cycle.md` for each task. This is proof the cycle was followed, not optional documentation.
+
+### Invalid Excuses (all of these are wrong)
+
+| Excuse | Reality |
+|--------|---------|
+| "Too simple to test" | Simple code still breaks. 30 seconds. |
+| "I'll test after" | Tests-after verify existing code. Tests-first specify requirements. |
+| "Need exploration first" | Explore, discard, restart with TDD. |
+| "TDD slows me down" | TDD is faster than debugging. Always. |
+
+### Red Flags — Delete and Restart
+
+If any of these are true, delete the code and begin with a failing test:
+- Code was written before a test exists
+- Test passes on first run without investigation
+- Cannot articulate why the test initially failed
+
+---
+
+## Verification-Before-Completion Gate
+
+> **Evidence before claims, always.**
+
+Before ANY success claim (task done, test passing, build clean, bug fixed), follow the **5-step gate**:
+
+1. **Identify** the verification command that proves the assertion
+2. **Run** the complete command fresh (not from memory, not from cache)
+3. **Read** the full output — every line, every warning, every exit code
+4. **Verify** the output actually confirms the claim
+5. **Only then** state the claim, with evidence
+
+### Banned Language
+
+These words in execution reports indicate unverified claims:
+- "should work" → Run it and confirm
+- "probably passes" → Run the tests
+- "seems to be fixed" → Reproduce the original bug and verify
+- "looks good" → What specific output proves this?
+
+---
+
+## Systematic Debugging
+
+When a task fails due to a bug, invoke the debugging protocol (`.spear/agents/debugger.md`):
+
+1. **Root Cause Investigation** — Read errors fully, reproduce consistently, check recent changes, trace data flow
+2. **Pattern Analysis** — Compare broken code against working examples
+3. **Hypothesis Testing** — State "I think X because Y", change one variable at a time
+4. **Implementation** — Write failing test, implement single fix, verify
+
+**The 3-Strike Rule:** If 3+ fix attempts fail, STOP. This is architectural. Escalate to human partner.
+
+---
+
+## Subagent Execution (for complex phases)
+
+For phases with 5+ tasks, consider subagent execution (`.spear/agents/subagent-executor.md`):
+
+- **Fresh agent per task** — prevents context pollution
+- **Two-stage review** — spec compliance first, then code quality
+- **Model routing** — mechanical tasks → cheap model, architecture → best model
+- **Parallel dispatch** — independent tasks (no shared files) run concurrently
+- **Merge protocol** — review summaries → conflict detection → full suite test → spot check
+
+---
+
 ## Execution Tips
 
-1. **Commit early, commit often.** Small commits are easier to audit and revert.
-2. **Run fitness functions after every significant change.** Don't wait for checkpoints.
-3. **Log deviations in real time.** Reconstructing them later is unreliable.
-4. **Don't skip checkpoints.** They take 30 seconds and catch drift early.
-5. **If a phase is going off-plan, stop and revise the plan** rather than improvising. Documented revisions are fine; undocumented drift is not.
+1. **TDD first, always.** Write the test, watch it fail, then implement. No exceptions.
+2. **Verify before claiming.** Run the command, read the output, then state the result.
+3. **Commit early, commit often.** Small atomic commits are easier to audit and revert.
+4. **Run fitness functions after every significant change.** Don't wait for checkpoints.
+5. **Log deviations in real time.** Reconstructing them later is unreliable.
+6. **Don't skip checkpoints.** They take 30 seconds and catch drift early.
+7. **If a bug appears, follow the protocol.** Root cause first. No random fixes.
+8. **If a phase is going off-plan, stop and revise the plan** rather than improvising.

@@ -4,6 +4,38 @@ The Spec phase defines **what** you're building and **why**, without prescribing
 
 ---
 
+## Socratic Questioning Protocol
+
+Before writing any spec, gather requirements through structured questioning:
+
+### One Question at a Time
+Do not dump a list of 10 questions. Ask ONE question per message. Wait for the answer. Then ask the next question based on what you learned. This prevents information overload and produces higher-quality answers.
+
+### Multiple Choice Over Open-Ended
+When possible, present 2-4 options with trade-offs instead of asking "what do you want?"
+
+**Good:** "Should this endpoint (A) return paginated results with cursor-based pagination, (B) return all results with a max limit, or (C) stream results? A is best for large datasets, B is simplest, C is best for real-time."
+
+**Bad:** "How should the endpoint return data?"
+
+### Question Categories (cover in order)
+1. **Purpose:** What problem are we solving? Who has this problem?
+2. **Scope:** What's in? What's explicitly out?
+3. **Behavior:** What should happen in the happy path? Key edge cases?
+4. **Constraints:** Performance targets? Compatibility requirements? Budget?
+5. **Success:** How will we know this works? What does "done" look like?
+
+### Design Validation
+After gathering requirements:
+1. **Propose 2-3 approaches** with explicit trade-offs and a recommendation
+2. **Dispatch a spec-document-reviewer** to validate acceptance criteria, identify ambiguity, and check for contradictions (max 5 review iterations)
+3. **Present to human partner** for explicit approval
+
+### Hard Gate
+**Do NOT invoke any planning or implementation phase until the human partner has explicitly approved the spec.** This applies regardless of perceived simplicity. A "simple" feature with an ambiguous spec produces a "simple" mess.
+
+---
+
 ## When to Use Full PRD vs Lightweight Epic Shard
 
 ### Full PRD

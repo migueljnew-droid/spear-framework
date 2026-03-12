@@ -12,7 +12,9 @@
 
 <br /><br />
 
+<img src="https://img.shields.io/badge/version-2.0.0-4d8dff?style=flat-square" alt="v2.0.0" />&nbsp;
 <img src="https://img.shields.io/badge/phases-5-4d8dff?style=flat-square" alt="5 Phases" />&nbsp;
+<img src="https://img.shields.io/badge/agents-14-4d8dff?style=flat-square" alt="14 Agents" />&nbsp;
 <img src="https://img.shields.io/badge/audit%20categories-6-4d8dff?style=flat-square" alt="6 Audit Categories" />&nbsp;
 <img src="https://img.shields.io/badge/AI%20tools-6-4d8dff?style=flat-square" alt="6 AI Tools" />&nbsp;
 <img src="https://img.shields.io/badge/dependencies-0-4d8dff?style=flat-square" alt="Zero Dependencies" />&nbsp;
@@ -66,7 +68,7 @@ SPEAR is a drop-in methodology that adds structure, audit gates, and a learning 
 <table>
 <tr>
 <td width="60"><b>S</b></td>
-<td><b>Spec</b> — Define what to build and why. PRDs, architecture docs, epic shards.</td>
+<td><b>Spec</b> — Socratic questioning to define what and why. One question at a time. Design validation before approval.</td>
 </tr>
 <tr>
 <td><b>P</b></td>
@@ -74,7 +76,7 @@ SPEAR is a drop-in methodology that adds structure, audit gates, and a learning 
 </tr>
 <tr>
 <td><b>E</b></td>
-<td><b>Execute</b> — Build with atomic commits, checkpoints, and deviation logging.</td>
+<td><b>Execute</b> — TDD-enforced (RED-GREEN-REFACTOR). Worktree isolation. 5-step verification gate. Subagent dispatch. Systematic debugging.</td>
 </tr>
 <tr>
 <td><b>A</b></td>
@@ -161,7 +163,13 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 ## Key Features
 
 <table>
-<tr><td width="200"><b>Phase State Machine</b></td><td>Sequential phases with gates. No skipping.</td></tr>
+<tr><td width="200"><b>Phase State Machine</b></td><td>Sequential phases with 13 enforced rules. No skipping.</td></tr>
+<tr><td><b>TDD Iron Law</b></td><td>No production code without a failing test first. RED-GREEN-REFACTOR per task. Code before test = delete and restart.</td></tr>
+<tr><td><b>5-Step Verification Gate</b></td><td>Identify → Run → Read → Verify → Claim. No "should work" or "probably passes." Evidence before claims.</td></tr>
+<tr><td><b>Socratic Spec Phase</b></td><td>One question at a time. Multiple choice preferred. Design validation. Hard gate before implementation.</td></tr>
+<tr><td><b>Systematic Debugging</b></td><td>4-phase protocol: Root Cause → Pattern Analysis → Hypothesis → Fix. 3 failed fixes = escalate (architectural issue).</td></tr>
+<tr><td><b>Subagent Execution</b></td><td>Fresh agent per task. Two-stage review (spec compliance → code quality). Model routing by complexity.</td></tr>
+<tr><td><b>Worktree Isolation</b></td><td>Every execution phase starts in a clean git worktree. Verified baseline before any changes.</td></tr>
 <tr><td><b>6-Category Audit</b></td><td>Parallel, independent audits with severity classification</td></tr>
 <tr><td><b>Learning Ratchet</b></td><td>Auto-tightening thresholds. Quality only goes up.</td></tr>
 <tr><td><b>Fitness Functions</b></td><td>Automated metric checks against ratchet thresholds</td></tr>
@@ -222,15 +230,23 @@ cat .spear/ratchet/ratchet.json
 
 ```
 .spear/                    <- The distribution unit (copy this to any project)
-├── SPEAR.md               <- Framework brain
+├── SPEAR.md               <- Framework brain (v2.0 — 13 state machine rules)
 ├── config.json            <- Project configuration
 ├── templates/             <- Output templates for each phase
 │   ├── spec/              <- PRD, architecture, epic shard
 │   ├── plan/              <- Phase plan, fitness function, research brief
-│   ├── execute/           <- Task commit, deviation log, checkpoint
+│   ├── execute/           <- Task commit, deviation log, checkpoint, TDD cycle
 │   ├── audit/             <- Audit report, summary, finding
 │   └── ratchet/           <- Ratchet entry, rule proposal, retrospective
-├── agents/                <- AI agent role definitions
+├── agents/                <- 14 AI agent role definitions
+│   ├── spec-writer.md     <- Socratic questioning + design validation
+│   ├── executor.md        <- TDD-enforced + verification gate + worktree
+│   ├── subagent-executor  <- Parallel task dispatch + two-stage review
+│   ├── debugger.md        <- 4-phase systematic debugging protocol
+│   ├── planner.md         <- Phase planning + fitness functions
+│   ├── verifier.md        <- Phase + project verification
+│   ├── ratchet-engine.md  <- Threshold management + retrospectives
+│   └── audit-*.md         <- 6 independent audit category agents
 ├── ratchet/               <- Threshold state + history + rules
 ├── output/                <- Phase output artifacts
 ├── memory/                <- Project knowledge base

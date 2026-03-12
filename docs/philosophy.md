@@ -12,7 +12,7 @@ SPEAR solves this by enforcing a disciplined cycle: **Spec, Plan, Execute, Audit
 
 ---
 
-## The Seven Principles
+## The Ten Principles
 
 ### 1. Spec-First, Not Code-First
 
@@ -84,6 +84,30 @@ SPEAR solves this by enforcing a disciplined cycle: **Spec, Plan, Execute, Audit
 
 **Comparison:** Traditional code review is one person, one pass, serial. BMAD has review stages but they're sequential. SPEAR's parallel model gives you comprehensive feedback in the time it takes to run the slowest single category.
 
+### 8. Test-First, Not Test-After
+
+**The problem:** AI agents write code, then bolt on tests that verify what they already built. These tests prove nothing — they pass immediately because they test existing behavior, not intended behavior.
+
+**SPEAR's answer:** The Iron Law of TDD. No production code exists without a prior failing test. RED-GREEN-REFACTOR is mandatory for every task. Code written before a test gets deleted — no exceptions, no rationalizations.
+
+**In practice:** Each task produces a TDD cycle record documenting the failing test, the minimal fix, and the refactor. If the record is empty, the task is rejected.
+
+### 9. Evidence Before Claims
+
+**The problem:** AI agents declare "all tests pass" and "bug is fixed" without running verification. Humans trust these claims. Bugs ship.
+
+**SPEAR's answer:** The 5-step verification gate. Before any success claim: (1) identify the verification command, (2) run it fresh, (3) read the full output, (4) verify it confirms the claim, (5) only then state the claim with evidence. Words like "should work" and "probably passes" are banned.
+
+**In practice:** Execution reports must contain command output, not assertions. The audit checks for banned language in reports.
+
+### 10. Root Cause First, Not Fix First
+
+**The problem:** When bugs appear, the instinct is to try a fix immediately. This leads to random changes, symptom-level patches, and "fix the fix" chains that make code worse.
+
+**SPEAR's answer:** Systematic debugging protocol. Root cause investigation before any fix attempt. One variable changed at a time. If 3+ fix attempts fail, stop — it's architectural. Every bug fix requires a failing test committed before the fix.
+
+**In practice:** The debugger agent enforces the 4-phase protocol. Red flags (like "quick fix for now") trigger immediate halt and restart from Phase 1.
+
 ---
 
 ## How SPEAR Combines Existing Strengths
@@ -111,10 +135,15 @@ SPEAR does not replace these approaches. It takes the best ideas from each:
 These are hard constraints, not suggestions:
 
 1. **A spec must exist before execution begins.** Even a one-paragraph spec counts. No spec, no code.
-2. **CRITICAL audit findings block the ratchet.** Fix them or justify the override. Justifications are permanent.
-3. **Ratchet floors never decrease without explicit override.** Auto-tightening is the default.
-4. **All state lives in `.spear/` and is git-tracked.** If it's not committed, it didn't happen.
-5. **Adapters are read-only translators.** They never modify `.spear/` state — they only read it and output tool-specific files.
+2. **The spec requires explicit human approval.** Hard gate. No planning without sign-off.
+3. **No production code without a failing test first.** The Iron Law of TDD. No exceptions.
+4. **Evidence before claims.** Every "done" assertion requires command output proof (5-step gate).
+5. **3 failed fixes = escalate.** Do not attempt fix #4. This is architectural. Discuss with human.
+6. **Execution starts in a fresh worktree.** Clean baseline verified before any changes.
+7. **CRITICAL audit findings block the ratchet.** Fix them or justify the override. Justifications are permanent.
+8. **Ratchet floors never decrease without explicit override.** Auto-tightening is the default.
+9. **All state lives in `.spear/` and is git-tracked.** If it's not committed, it didn't happen.
+10. **Adapters are read-only translators.** They never modify `.spear/` state — they only read it and output tool-specific files.
 
 ---
 
