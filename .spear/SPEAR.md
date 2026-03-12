@@ -185,5 +185,5 @@ SPEAR is AI-tool-agnostic at its core. Adapters translate SPEAR concepts into to
 
 ---
 
-*SPEAR v2.0.0 — Created by Louis Gold*
+*SPEAR v2.0.0 — Created by Miguel Jiminez*
 *v2.0: TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, parallel dispatch, worktree isolation*

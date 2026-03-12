@@ -296,7 +296,7 @@ MIT — use it everywhere. See [LICENSE](LICENSE).
 
 <div align="center">
 
-**Created by [Louis Gold](https://github.com/migueljnew-droid)**&nbsp;&nbsp;·&nbsp;&nbsp;Spec-driven. Audit-gated. Self-improving.
+**Created by [Miguel Jiminez](https://github.com/migueljnew-droid)**&nbsp;&nbsp;·&nbsp;&nbsp;Spec-driven. Audit-gated. Self-improving.
 
 <br />
 
