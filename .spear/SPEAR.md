@@ -21,11 +21,12 @@ Read this file first. It is the single source of truth for the framework.
 ```
 
 ### Phase 1: SPEC
-Define what to build and why. No code. No implementation details.
+Define what to build and why. No code. No implementation details. Socratic questioning to refine requirements.
 
-**Inputs:** User request, existing codebase context, memory/decisions
+**Inputs:** User request, existing codebase context, memory/decisions, ratchet retrospective
 **Outputs:** PRD, architecture doc, epic shards (bite-sized deliverables)
-**Gate:** All outputs reviewed. Architecture doc references existing patterns from memory.
+**Gate:** Spec-document-reviewer validates. Human partner explicitly approves. Hard gate — no implementation without approval.
+**Method:** One question at a time. Multiple choice over open-ended. 2-3 design approaches with trade-offs.
 **Templates:** `templates/spec/prd.md`, `templates/spec/architecture.md`, `templates/spec/epic-shard.md`
 
 ### Phase 2: PLAN
@@ -37,12 +38,14 @@ Break the spec into executable phases with success criteria.
 **Templates:** `templates/plan/phase-plan.md`, `templates/plan/fitness-function.md`, `templates/plan/research-brief.md`
 
 ### Phase 3: EXECUTE
-Build what was planned. One phase at a time. Atomic commits.
+Build what was planned. One phase at a time. Atomic commits. TDD-enforced. Evidence-verified.
 
 **Inputs:** Phase plan, fitness functions, ratchet rules
-**Outputs:** Code changes, task commits, deviation log (if plan was modified)
-**Gate:** All fitness functions pass. No ratchet regressions. Tests green.
-**Templates:** `templates/execute/task-commit.md`, `templates/execute/deviation-log.md`, `templates/execute/checkpoint.md`
+**Outputs:** Code changes, task commits, TDD cycle records, deviation log, debug reports (if bugs hit)
+**Gate:** All fitness functions pass. No ratchet regressions. Tests green. Every claim verified via 5-step gate.
+**Method:** Git worktree isolation. RED-GREEN-REFACTOR per task. Subagent dispatch for 5+ task phases. Systematic debugging on failures.
+**Templates:** `templates/execute/task-commit.md`, `templates/execute/deviation-log.md`, `templates/execute/checkpoint.md`, `templates/execute/tdd-cycle.md`
+**Agents:** `agents/executor.md` (standard), `agents/subagent-executor.md` (parallel), `agents/debugger.md` (on failure)
 
 ### Phase 4: AUDIT
 Independent review across 6 categories. Parallel-runnable. Each category produces an independent verdict.
@@ -96,13 +99,18 @@ Learn from the cycle. Tighten thresholds. Record decisions.
 ## State Machine Rules
 
 1. **Phases are sequential.** You cannot skip phases.
-2. **Audit failure returns to Execute.** Fix findings, then re-audit.
-3. **Ratchet never loosens silently.** Every threshold change is logged.
-4. **Memory persists across cycles.** Decisions, patterns, and findings carry forward.
-5. **Deviation is allowed, not hidden.** If the plan changes during Execute, log it.
-6. **Each phase has a single owner.** One agent/human per phase at a time.
-7. **Audit categories are independent.** Run them in parallel. Each produces its own verdict.
-8. **The ratchet is monotonic by default.** Quality only goes up.
+2. **Spec requires explicit human approval.** Hard gate — no planning without sign-off.
+3. **Audit failure returns to Execute.** Fix findings, then re-audit.
+4. **Ratchet never loosens silently.** Every threshold change is logged.
+5. **Memory persists across cycles.** Decisions, patterns, and findings carry forward.
+6. **Deviation is allowed, not hidden.** If the plan changes during Execute, log it.
+7. **Each phase has a single owner.** One agent/human per phase at a time.
+8. **Audit categories are independent.** Run them in parallel. Each produces its own verdict.
+9. **The ratchet is monotonic by default.** Quality only goes up.
+10. **No production code without a failing test first.** The Iron Law of TDD. No exceptions.
+11. **Evidence before claims.** Every "done" assertion requires command output proof (5-step gate).
+12. **3 failed fixes = escalate.** Do not attempt fix #4. This is architectural. Discuss with human.
+13. **Worktree isolation is default.** Execute phase starts in a fresh worktree branch.
 
 ---
 
@@ -115,10 +123,19 @@ Learn from the cycle. Tighten thresholds. Record decisions.
 ├── templates/            ← Phase output templates
 │   ├── spec/
 │   ├── plan/
-│   ├── execute/
+│   ├── execute/          ← Includes tdd-cycle.md
 │   ├── audit/
 │   └── ratchet/
 ├── agents/               ← Agent role prompts
+│   ├── spec-writer.md    ← Socratic questioning + design validation
+│   ├── planner.md
+│   ├── executor.md       ← TDD-enforced + verification gate + worktree isolation
+│   ├── subagent-executor.md  ← Parallel task dispatch + two-stage review
+│   ├── debugger.md       ← Systematic 4-phase debugging protocol
+│   ├── verifier.md
+│   ├── ratchet-engine.md
+│   ├── audit-*.md        ← 6 audit category agents
+│   └── competitor-researcher.md
 ├── ratchet/
 │   ├── ratchet.json      ← Current thresholds + rules
 │   ├── history.jsonl     ← Append-only change log
@@ -168,4 +185,5 @@ SPEAR is AI-tool-agnostic at its core. Adapters translate SPEAR concepts into to
 
 ---
 
-*SPEAR v1.0.0 — Created by Louis Gold*
+*SPEAR v2.0.0 — Created by Louis Gold*
+*v2.0: TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, parallel dispatch, worktree isolation*
