@@ -17,16 +17,18 @@ through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
 3. **Ratchet never loosens silently.** Every threshold change requires justification logged in `.spear/ratchet/history.jsonl`.
 4. **Memory persists.** Read `.spear/memory/` before every Spec and Plan phase.
 5. **Deviations are logged, not hidden.** Use `.spear/templates/execute/deviation-log.md`.
+6. **Use what you have.** Every phase consults `.spear/capability-registry.json`. Route: Skill → SOVEREIGN agent → MCP tool → Claude Code agent → dependency → build from scratch.
+7. **Challenge before accepting.** Requirements are challenged (Musk Step 1), deletions proposed (Step 2), scope simplified (Step 3) before spec writing.
 
 ## Phase Commands
 
 | Command | Phase | What It Does |
 |---------|-------|--------------|
-| `/spec` | Spec | Gather requirements, produce PRD + architecture + shards |
+| `/spec` | Spec | Build capability registry, challenge requirements, produce PRD + architecture + shards |
 | `/plan` | Plan | Break spec into phased tasks with fitness functions |
 | `/execute` | Execute | Implement one phase with atomic commits and checkpoints |
 | `/audit` | Audit | Run 6-category audit, produce GO/NO-GO verdict |
-| `/ratchet` | Ratchet | Update thresholds, generate rules, record decisions |
+| `/ratchet` | Ratchet | Update thresholds, track cycle time, analyze capability utilization, record decisions |
 | `/status` | Any | Show current SPEAR state and ratchet thresholds |
 
 ## Audit Categories and Blocking Rules
@@ -68,6 +70,25 @@ Read current thresholds from `.spear/ratchet/ratchet.json`. Key rules:
 
 Always read memory before Spec and Plan phases. Always write memory after Ratchet phase.
 
+## Capability Registry
+
+The **Unified Capability Registry** (`.spear/capability-registry.json`) maps all available
+tools across the entire stack:
+
+| Source | What It Contains |
+|--------|-----------------|
+| Claude Code Skills | 70+ skills (senior-fullstack, tdd, code-review, etc.) |
+| Claude Code Agents | spear-executor, spear-planner, spear-auditor + custom |
+| SOVEREIGN Agents | 441 agents across 5 tiers (SOPHIA, TECHNE, BASTION, etc.) |
+| MCP Tools | perplexity, council, qmd, llm-gateway, n8n, content-creator |
+| Dependencies | Cargo.toml / package.json / requirements.txt |
+
+**Built during /spec (Step 1). Refreshed during /plan (Step 1). Consulted by ALL phases.**
+
+Routing priority: Skill → SOVEREIGN agent → MCP tool → Claude Code agent → dependency → build new.
+
+See `.spear/references/capability-registry.md` for full schema and routing rules.
+
 ## Templates
 
 All outputs must use templates from `.spear/templates/`:
@@ -98,11 +119,13 @@ Types: feat, fix, refactor, test, docs, chore, perf
 
 ```
 .spear/
-  SPEAR.md            -- Framework definition (read-only reference)
-  config.json         -- Project configuration
-  templates/          -- Phase output templates
-  agents/             -- Agent role definitions
-  ratchet/            -- Thresholds, rules, history
-  memory/             -- Decisions, findings, patterns
-  fitness/            -- Fitness function registry
+  SPEAR.md                 -- Framework definition (read-only reference)
+  config.json              -- Project configuration
+  capability-registry.json -- Unified Capability Registry (skills, agents, MCPs, deps)
+  references/              -- Schemas and routing rules
+  templates/               -- Phase output templates
+  agents/                  -- Agent role definitions
+  ratchet/                 -- Thresholds, rules, history, cycle times
+  memory/                  -- Decisions, findings, patterns
+  fitness/                 -- Fitness function registry
 ```

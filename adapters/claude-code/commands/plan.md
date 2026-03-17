@@ -17,7 +17,7 @@ Before proceeding, verify:
 If prerequisites are not met, tell the user what is missing and suggest
 running `/spec` first.
 
-## Step 1: Read Inputs
+## Step 1: Read Inputs & Refresh Capability Registry
 
 Read the following files:
 
@@ -26,8 +26,16 @@ Read the following files:
 3. `.spear/output/spec/shards/` -- all epic shards
 4. `.spear/ratchet/ratchet.json` -- current thresholds and rules
 5. `.spear/memory/` -- lessons from previous phases (what worked, what failed)
+6. `.spear/capability-registry.json` -- the Capability Registry (skills, agents, MCP tools, deps)
+7. `.spear/output/spec/requirement-challenge.md` -- which requirements survived and why
+8. `.spear/output/spec/deletion-proposal.md` -- what was marked for deletion
 
-Summarize: how many shards, what the overall scope is, current ratchet state.
+If the capability registry doesn't exist or is stale (>1 cycle old), refresh it:
+- Re-scan all sources (skills, agents, MCP tools, dependencies)
+- Update `.spear/capability-registry.json`
+
+Summarize: how many shards, overall scope, current ratchet state, and how many
+capabilities are available for this phase.
 
 ## Step 2: Define Phases
 
@@ -48,8 +56,8 @@ Write to: `.spear/output/plan/PHASE-001-[name].md`
 Each phase plan must include:
 
 ### Tasks Table
-| # | Task | Effort | Dependencies | Success Criterion |
-|---|------|--------|-------------|-------------------|
+| # | Task | Effort | Dependencies | Success Criterion | Capability |
+|---|------|--------|-------------|-------------------|------------|
 
 Every task needs:
 - Clear description (action verb + deliverable)
@@ -57,6 +65,25 @@ Every task needs:
 - Output: what files/state it changes
 - Success criterion: how to verify it is done
 - Effort estimate: S (< 1hr), M (1-4hr), L (4hr+)
+- **Capability**: which registered skill/agent/MCP tool/dependency is used (or "manual" if none)
+
+### Capabilities Used
+Add a section to the phase plan listing all registered capabilities that will be used:
+
+```markdown
+## Capabilities Used
+| Capability | Type | Phase Timing | Tasks |
+|-----------|------|-------------|-------|
+| [name] | skill/agent/mcp/dep | continuous/post-write/post-phase/at-commit | T1, T3 |
+```
+
+Follow the routing decision tree from `.spear/references/capability-registry.md`:
+1. Registered SKILL → use Skill tool
+2. SOVEREIGN AGENT → use mcp__council__invoke_agent
+3. MCP TOOL → use directly
+4. Claude Code AGENT → use Agent tool
+5. Installed DEPENDENCY → write code using it
+6. None → build it (flag as new capability)
 
 ### Task Ordering
 Build a dependency graph. Tasks with no dependencies come first.
@@ -96,6 +123,14 @@ And a rollback strategy:
 
 ## Step 6: Self-Audit Checklist
 
+### Capability Registry
+- [ ] Capability registry loaded and current (refreshed if stale)
+- [ ] Every task specifies which registered capability implements it (or "manual")
+- [ ] "Capabilities Used" section included in phase plan
+- [ ] Routing decision tree followed (skill → agent → MCP → dep → build)
+- [ ] No task rebuilds functionality already available in a registered capability
+
+### Plan Quality
 - [ ] Every acceptance criterion from spec maps to at least one task
 - [ ] Tasks ordered by dependency -- no task before its prerequisites
 - [ ] Each task is atomic and has a measurable success criterion

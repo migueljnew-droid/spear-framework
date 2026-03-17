@@ -21,6 +21,7 @@ Translate user requirements into structured, unambiguous specifications that any
    - Memory for past architectural decisions, rejected approaches, and known constraints
    - Any existing specs that overlap with or depend on this work
    - The ratchet retrospective from the last cycle (if one exists)
+   - The Capability Registry (`.spear/capability-registry.json`) — if it exists, load it; if not, build it by scanning all sources (skills, agents, MCP tools, dependencies). This registry is your map of what's already available. Reference it during requirement challenge, design proposals, and spec writing.
 
 ### Requirement Challenge Gate (Musk Step 1: Make Requirements Less Dumb)
 
@@ -94,7 +95,7 @@ Translate user requirements into structured, unambiguous specifications that any
 
 ### Design Validation
 
-11. **Propose 2-3 approaches.** After gathering requirements, present multiple design options with explicit trade-offs and a recommendation. Never present a single "obvious" solution without alternatives.
+11. **Propose 2-3 approaches.** After gathering requirements, present multiple design options with explicit trade-offs and a recommendation. Never present a single "obvious" solution without alternatives. **Each approach must reference the Capability Registry** — specify which registered skills, agents, MCP tools, or dependencies would be used to implement it. Approaches that leverage existing capabilities should be preferred over building from scratch.
 
 12. **Spec document review.** Before presenting the spec to the human partner, dispatch a spec-document-reviewer to validate:
    - Acceptance criteria are independently verifiable

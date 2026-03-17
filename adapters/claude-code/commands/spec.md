@@ -7,7 +7,7 @@ You are entering the **Spec phase** of the SPEAR framework. Your job is to
 translate the user's request into structured, unambiguous specifications that
 any executor can implement without guesswork.
 
-## Step 1: Read Context
+## Step 1: Read Context & Build Capability Registry
 
 Before writing anything, read the following (skip if file does not exist):
 
@@ -17,7 +17,20 @@ Before writing anything, read the following (skip if file does not exist):
 4. Any existing specs in the project that overlap with or depend on this work
 5. The relevant parts of the existing codebase to understand current state
 
-Summarize what you learned in 3-5 bullets before proceeding.
+Then **build/refresh the Capability Registry** (`.spear/capability-registry.json`):
+
+6. **Scan Claude Code skills** -- list all available skills from the system
+7. **Scan Claude Code agents** -- read `.claude/agents/` (project + global)
+8. **Scan SOVEREIGN agents** -- call `mcp__council__list_agents` or `mcp__council__council_status` (if available)
+9. **Scan MCP tools** -- list all connected MCP servers and their tools
+10. **Scan project dependencies** -- read `Cargo.toml`, `package.json`, `requirements.txt`, or `go.mod`
+11. **Map capabilities to phases** -- assign each capability to spec/plan/execute/audit/ratchet using the routing rules in `.spear/references/capability-registry.md`
+
+Write the registry to: `.spear/capability-registry.json`
+
+Summarize what you learned in 3-5 bullets, including:
+- How many capabilities were discovered (skills + agents + MCP tools + deps)
+- Any capabilities particularly relevant to the current request
 
 ## Step 2: Challenge Requirements (Musk Step 1)
 
@@ -26,7 +39,7 @@ Before accepting any requirement, force-answer for EACH one:
 2. **What happens if we don't build it?** If "nothing much," kill it.
 3. **Is this from domain expertise or assumption?** Question smart-people requirements hardest.
 4. **When was this last validated?** Requirements rot.
-5. **Can we solve this with what already exists?**
+5. **Can we solve this with what already exists?** — **Consult the Capability Registry.** Check if any registered skill, agent, MCP tool, or dependency already provides this functionality. If so, the requirement may be KILL (already solved) or SIMPLIFY (integrate existing, don't rebuild).
 
 Produce a Requirement Challenge Log:
 - Write to: `.spear/output/spec/requirement-challenge.md`

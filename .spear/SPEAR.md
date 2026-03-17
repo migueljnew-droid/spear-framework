@@ -31,8 +31,8 @@ SPEAR's Spec phase integrates Elon Musk's first three manufacturing steps — ap
 
 > Musk Steps 4 (accelerate) and 5 (automate) map to Execute and Ratchet respectively.
 
-**Inputs:** User request, existing codebase context, memory/decisions, ratchet retrospective
-**Outputs:** Requirement Challenge Log, Deletion Proposal, PRD, architecture doc, epic shards
+**Inputs:** User request, existing codebase context, memory/decisions, ratchet retrospective, capability registry
+**Outputs:** Capability Registry (`.spear/capability-registry.json`), Requirement Challenge Log, Deletion Proposal, PRD, architecture doc, epic shards
 **Gate:** Spec-document-reviewer validates. Human partner explicitly approves. Hard gate — no implementation without approval.
 **Method:** Challenge → Delete → Simplify → Socratic questioning → 2-3 design approaches with trade-offs.
 **Templates:** `templates/spec/prd.md`, `templates/spec/architecture.md`, `templates/spec/epic-shard.md`
@@ -40,25 +40,25 @@ SPEAR's Spec phase integrates Elon Musk's first three manufacturing steps — ap
 ### Phase 2: PLAN
 Break the spec into executable phases with success criteria.
 
-**Inputs:** Approved spec outputs, codebase analysis, ratchet thresholds
-**Outputs:** Phase plan, fitness functions, research briefs (if needed)
-**Gate:** Each phase has measurable success criteria. Fitness functions defined.
+**Inputs:** Approved spec outputs, codebase analysis, ratchet thresholds, capability registry
+**Outputs:** Phase plan (with Capabilities Used section), fitness functions, research briefs (if needed)
+**Gate:** Each phase has measurable success criteria. Fitness functions defined. Each task specifies its assigned capability.
 **Templates:** `templates/plan/phase-plan.md`, `templates/plan/fitness-function.md`, `templates/plan/research-brief.md`
 
 ### Phase 3: EXECUTE
 Build what was planned. One phase at a time. Atomic commits. TDD-enforced. Evidence-verified.
 
-**Inputs:** Phase plan, fitness functions, ratchet rules
-**Outputs:** Code changes, task commits, TDD cycle records, deviation log, debug reports (if bugs hit)
-**Gate:** All fitness functions pass. No ratchet regressions. Tests green. Every claim verified via 5-step gate.
-**Method:** Git worktree isolation. RED-GREEN-REFACTOR per task. Subagent dispatch for 5+ task phases. Systematic debugging on failures.
+**Inputs:** Phase plan, fitness functions, ratchet rules, capability registry
+**Outputs:** Code changes, task commits, TDD cycle records, deviation log, capability utilization report, debug reports (if bugs hit)
+**Gate:** All fitness functions pass. No ratchet regressions. Tests green. Every claim verified via 5-step gate. Assigned capabilities used (or deviation logged).
+**Method:** Git worktree isolation. Use assigned capabilities (Skill → SOVEREIGN → MCP → Agent → Dep → manual). RED-GREEN-REFACTOR per task. Subagent dispatch for 5+ task phases. Systematic debugging on failures.
 **Templates:** `templates/execute/task-commit.md`, `templates/execute/deviation-log.md`, `templates/execute/checkpoint.md`, `templates/execute/tdd-cycle.md`
 **Agents:** `agents/executor.md` (standard), `agents/subagent-executor.md` (parallel), `agents/debugger.md` (on failure)
 
 ### Phase 4: AUDIT
 Independent review across 6 categories. Parallel-runnable. Each category produces an independent verdict.
 
-**Inputs:** All changes from Execute phase, ratchet state, fitness results
+**Inputs:** All changes from Execute phase, ratchet state, fitness results, capability registry, capability utilization report
 **Outputs:** Audit report per category, summary with GO/NO-GO verdict
 **Gate:** Zero CRITICAL findings. HIGH findings require explicit override with justification.
 
@@ -88,8 +88,8 @@ Independent review across 6 categories. Parallel-runnable. Each category produce
 ### Phase 5: RATCHET
 Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 
-**Inputs:** Audit results, fitness function measurements, execution history, phase timestamps
-**Outputs:** Updated thresholds, new rules, cycle time analysis, retrospective, memory entries
+**Inputs:** Audit results, fitness function measurements, execution history, phase timestamps, capability utilization
+**Outputs:** Updated thresholds, new rules, cycle time analysis, capability utilization analysis, retrospective, memory entries
 **Gate:** Ratchet state updated. No threshold loosened without justification.
 
 #### Ratchet Mechanics
@@ -128,6 +128,26 @@ Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 11. **Evidence before claims.** Every "done" assertion requires command output proof (5-step gate).
 12. **3 failed fixes = escalate.** Do not attempt fix #4. This is architectural. Discuss with human.
 13. **Worktree isolation is default.** Execute phase starts in a fresh worktree branch.
+14. **Use what you have before building new.** Every phase consults the Capability Registry. The routing priority is: registered Skill → SOVEREIGN agent → MCP tool → Claude Code agent → installed dependency → build from scratch. Rebuilding available functionality is a deviation that must be logged and justified.
+15. **Challenge before accepting.** Requirements are challenged (Musk Step 1), deletions are proposed (Step 2), and scope is simplified (Step 3) before any spec is written.
+
+---
+
+## Capability Routing
+
+When a task needs functionality, follow this decision tree:
+
+```
+1. Registered SKILL?      → Use Skill tool (fastest, most integrated)
+2. SOVEREIGN AGENT?        → Use mcp__council__invoke_agent (domain expertise)
+3. MCP TOOL?               → Use the MCP tool directly
+4. Claude Code AGENT?      → Use Agent tool with subagent_type
+5. Installed DEPENDENCY?   → Write code using the dependency
+6. None of the above?      → Build from scratch (flag as new capability)
+```
+
+Registry lookup failures are INFO-level, never blocking. If a capability is
+unavailable at runtime, fall back to manual, log a deviation, and flag in audit.
 
 ---
 
@@ -137,6 +157,7 @@ Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 .spear/
 ├── SPEAR.md              ← You are here
 ├── config.json           ← Project configuration
+├── capability-registry.json ← Unified Capability Registry (skills, agents, MCPs, deps)
 ├── templates/            ← Phase output templates
 │   ├── spec/
 │   ├── plan/
@@ -153,6 +174,8 @@ Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 │   ├── ratchet-engine.md
 │   ├── audit-*.md        ← 6 audit category agents
 │   └── competitor-researcher.md
+├── references/
+│   └── capability-registry.md ← Registry schema, discovery sources, routing rules
 ├── ratchet/
 │   ├── ratchet.json      ← Current thresholds + rules
 │   ├── history.jsonl     ← Append-only change log
@@ -202,6 +225,7 @@ SPEAR is AI-tool-agnostic at its core. Adapters translate SPEAR concepts into to
 
 ---
 
-*SPEAR v2.1.0 — Created by Miguel Jiminez*
+*SPEAR v2.2.0 — Created by Miguel Jiminez*
+*v2.2: Unified Capability Registry — all phases discover and route through skills, agents, MCP tools, and dependencies*
 *v2.1: Musk 5-Step Integration — requirement challenge gate, deletion audit, simplification pass, cycle time tracking*
 *v2.0: TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, parallel dispatch, worktree isolation*

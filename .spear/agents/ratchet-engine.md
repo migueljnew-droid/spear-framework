@@ -105,6 +105,10 @@ Update thresholds, generate rules, record decisions, and update memory after eac
     - What went poorly (regressions, unexpected issues)
     - What to change next time (process improvements)
     - Threshold progression (trend over time)
+    - **Musk Gate results** (requirements challenged/killed/simplified, deletions proposed/executed)
+    - **Cycle time analysis** (per-phase durations, SLOW/FAST flags, bottleneck investigation)
+    - **Capability utilization** (registered vs. used, missed opportunities, fallback incidents)
+15. **Check registry freshness.** If the capability registry hasn't been refreshed in 3+ cycles, add a WARN to the retrospective recommending a refresh.
 
 ## What to Produce
 

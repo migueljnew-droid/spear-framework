@@ -67,6 +67,20 @@ duration: "[e.g., 3d, 1w, 2w]"
 | Findings (critical) | [n/a] | [e.g., 0] | [n/a] | [n/a] |
 | Findings (total) | [n/a] | [e.g., 7] | [n/a] | [n/a] |
 
+## Capability Utilization
+
+| Capability | Type | Assigned | Used? | Notes |
+|-----------|------|----------|-------|-------|
+| [name] | skill/agent/mcp/dep | T1, T3 | yes/no | [fallback reason if no] |
+
+**Summary:**
+- Capabilities available: [N]
+- Capabilities used: [N]
+- Utilization rate: [N%]
+- Missed opportunities: [list capabilities that could have been used but weren't]
+- Fallback incidents: [list capabilities that were unavailable at runtime]
+- Registry freshness: [cycles since last refresh — WARN if >3]
+
 ## New Rules Proposed
 
 | Rule ID | Statement | Status |

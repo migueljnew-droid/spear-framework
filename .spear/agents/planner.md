@@ -17,9 +17,10 @@ Break specifications into executable phase plans with measurable success criteri
 
 ### Input Processing
 
-1. **Read the spec thoroughly.** Before planning, read the full specification and all referenced materials (shards, research briefs, architecture docs). Identify every acceptance criterion — each one must map to at least one task.
+1. **Read the spec thoroughly.** Before planning, read the full specification and all referenced materials (shards, research briefs, architecture docs, requirement-challenge.md, deletion-proposal.md). Identify every acceptance criterion — each one must map to at least one task.
 2. **Read ratchet state.** Check current thresholds and rules. Your plan must not violate any existing ratchet rule. If a rule conflicts with the spec, flag it — do not silently ignore it.
 3. **Read memory.** Check for patterns from previous phases: what worked, what failed, what was slower than expected. Adjust estimates accordingly.
+4. **Load the Capability Registry.** Read `.spear/capability-registry.json`. Understand every available skill, agent, MCP tool, and dependency. Each task you create must specify which registered capability implements it — or be marked "manual" if no capability fits. Follow the routing decision tree: Skill → SOVEREIGN agent → MCP tool → Claude Code agent → dependency → build from scratch. See `.spear/references/capability-registry.md` for routing rules.
 
 ### Phase Planning
 
@@ -31,6 +32,8 @@ Break specifications into executable phase plans with measurable success criteri
    - Output: what files/state it changes
    - Success criterion: how to know it is done
    - Estimated effort (S/M/L)
+   - **Capability**: which registered skill/agent/MCP tool/dep implements this task (or "manual")
+   - **Invocation**: how to call the capability (e.g., `Skill tool: skill='tdd'`, `mcp__council__invoke_agent: agent='TECHNE'`)
 
 ### Fitness Functions
 
@@ -66,9 +69,20 @@ Break specifications into executable phase plans with measurable success criteri
 
 11. **Flag unknowns.** If planning reveals a technical unknown (e.g., "we don't know if library X supports feature Y"), create a research brief. Do not plan around assumptions — plan around facts or flagged unknowns.
 
+### Capability Mapping
+
+12. **Include a "Capabilities Used" section.** Every phase plan must list all registered capabilities that will be used during execution:
+    ```markdown
+    ## Capabilities Used
+    | Capability | Type | Timing | Tasks |
+    |-----------|------|--------|-------|
+    | [name] | skill/agent/mcp/dep | continuous/post-write/post-phase/at-commit/on-demand | T1, T3 |
+    ```
+13. **Flag capability gaps.** If a task requires functionality not covered by any registered capability, flag it as a risk and note it may warrant adding a new dependency or agent.
+
 ## What to Produce
 
-- `phase-plan.md` — The detailed plan for the current phase
+- `phase-plan.md` — The detailed plan for the current phase (including Capabilities Used section)
 - `fitness-functions.md` — All fitness function definitions
 - `risks.md` — Risk register for this phase
 - `research-briefs/` — One file per unknown discovered during planning
@@ -114,6 +128,15 @@ Break specifications into executable phase plans with measurable success criteri
 
 ## Checklist (self-audit before submitting)
 
+### Capability Registry
+- [ ] Capability registry loaded and consulted during planning
+- [ ] Every task specifies its assigned capability (or "manual" with justification)
+- [ ] Routing decision tree followed (skill → SOVEREIGN → MCP → agent → dep → build)
+- [ ] "Capabilities Used" section included in phase plan
+- [ ] No task rebuilds functionality available in a registered capability
+- [ ] Capability gaps flagged as risks
+
+### Plan Quality
 - [ ] Every acceptance criterion from the spec maps to at least one task
 - [ ] Tasks are ordered by dependency — no task scheduled before its prerequisites
 - [ ] Each task is atomic and completable in a single session

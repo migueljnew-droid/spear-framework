@@ -13,8 +13,31 @@ Before proceeding, verify:
 1. Execute phase output exists (execution report, commits, checkpoints)
 2. All fitness functions have been measured
 3. Ratchet state is available
+4. Capability registry exists (`.spear/capability-registry.json`)
 
 If prerequisites are not met, tell the user to complete `/execute` first.
+
+## Step 0: Load Capability Registry for Audit Enhancement
+
+Read `.spear/capability-registry.json` and identify registered capabilities
+that strengthen each audit category:
+
+| Category | Registry Enhancement |
+|----------|---------------------|
+| Security | Registered security scanners, SAST tools, silent-failure-hunter |
+| Dependencies | Registered dep audit tools, license checkers |
+| Performance | Registered profilers, benchmark tools |
+| Code Quality | Registered linters, code reviewers, code simplifiers |
+| Documentation | Registered doc generators, comment analyzers |
+| Architecture | Registered type analyzers, architecture reviewers |
+
+For each category, invoke the relevant registered capability IN ADDITION to
+your own analysis. Tag findings from registered capabilities with their source:
+`[source: capability-name]`
+
+Also check the execution report for **capability utilization**:
+- Which registered capabilities were assigned but NOT used? Flag as INFO.
+- Which tasks were "manual" that had a registered capability available? Flag as MEDIUM.
 
 ## Audit Scope
 
@@ -115,6 +138,69 @@ Check for:
 
 ---
 
+## Ensemble Auditing (Multi-LLM Cross-Validation)
+
+If `.spear/config.json` has `audit.ensemble.enabled: true`, run ensemble
+cross-validation after your own analysis of each category.
+
+### How Ensemble Works
+
+For each category you audit:
+
+1. **You audit first.** Use Read/Grep/Glob to analyze the code and produce your findings.
+2. **Prepare a review packet.** Collect the relevant code diffs and your findings into a prompt.
+3. **Send to external LLMs via `llm_compare`.** Call the `mcp__llm-gateway__llm_compare` tool with:
+   - `providers`: from `config.json` `audit.ensemble.providers`
+   - `prompt`: the review packet (code context + your findings + "what did I miss?")
+   - `system`: a system prompt defining the audit category checklist
+4. **Merge findings.** Parse each external LLM's response for new findings you missed.
+   - `merge_strategy: "union"` — add all unique findings from any model
+   - `merge_strategy: "consensus"` — only add findings that `min_agreement` models agree on
+5. **Tag ensemble findings.** Any finding surfaced by an external LLM gets tagged `[ENSEMBLE]`
+   and includes which provider(s) flagged it.
+
+### Review Packet Format
+
+Build the prompt like this:
+```
+I am auditing a codebase for [CATEGORY] issues. Below is the code diff
+and my initial findings. Please review and identify any issues I missed.
+Return findings in this exact format:
+
+### [SEVERITY] [Category]-[NNN]: [Title]
+**File:** [path:line]
+**Severity:** CRITICAL | HIGH | MEDIUM | LOW | INFO
+**Description:** [issue]
+**Evidence:** [code reference]
+**Recommendation:** [fix]
+
+---
+CODE DIFF:
+[truncated to max_context_lines from config]
+
+---
+MY FINDINGS:
+[your findings for this category]
+
+---
+What security/performance/quality issues did I miss?
+```
+
+### When Ensemble is Disabled
+
+If `audit.ensemble.enabled` is `false` (the default), skip this section entirely
+and audit using only your own analysis. Do not call llm-gateway tools.
+
+### Ensemble Reporting
+
+In the audit report, add an **Ensemble Results** section after the main categories:
+- Which providers were consulted
+- How many additional findings each provider surfaced
+- Agreement rate between Claude and external models
+- Any findings where external models disagreed with your severity assessment
+
+---
+
 ## Finding Format
 
 For each finding, record:
@@ -145,9 +231,11 @@ Write the full audit report to: `.spear/output/audit/audit-report.md`
 Structure:
 1. **Summary**: Total findings by severity, GO/NO-GO verdict
 2. **Category Reports**: One section per category with all findings
-3. **Ratchet Compliance**: Did any threshold regress? Did any rule fire?
-4. **Fitness Function Review**: Are all functions green?
-5. **Verdict**: GO, CONDITIONAL GO, or NO-GO with reasoning
+3. **Capability Utilization**: Which registered capabilities were used, missed, or failed
+4. **Ensemble Results** (if enabled): Providers consulted, additional findings, agreement rates
+5. **Ratchet Compliance**: Did any threshold regress? Did any rule fire?
+6. **Fitness Function Review**: Are all functions green?
+7. **Verdict**: GO, CONDITIONAL GO, or NO-GO with reasoning
 
 ## After the Audit
 

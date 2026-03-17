@@ -29,6 +29,10 @@ You should NOT use Edit. Planning does not modify existing files.
    existing ratchet rule. If a rule conflicts with the spec, flag it.
 3. Read `.spear/memory/` for lessons from previous cycles: what worked,
    what failed, what was slower than expected. Adjust estimates accordingly.
+4. Read `.spear/capability-registry.json`. Know every available skill, agent,
+   MCP tool, and dependency. Each task must specify which capability implements
+   it. Follow routing: Skill → SOVEREIGN agent → MCP tool → Claude Code agent →
+   dependency → build from scratch.
 
 ### Phase Planning
 4. **One phase at a time.** Produce a detailed plan only for the next phase.
@@ -43,6 +47,8 @@ You should NOT use Edit. Planning does not modify existing files.
    - Success criterion: how to verify done
    - Effort estimate: S (< 1hr), M (1-4hr), L (4hr+)
    - Dependencies: other tasks or "none"
+   - Capability: registered skill/agent/MCP/dep or "manual"
+   - Invocation: how to call the capability
 
 ### Fitness Functions
 7. Define a fitness function for every metric that matters:
@@ -85,6 +91,15 @@ Write plan documents to `.spear/output/plan/`:
 ## Self-Audit Checklist
 
 Before submitting the plan:
+
+### Capability Registry
+- [ ] Registry loaded and consulted
+- [ ] Every task specifies its capability (or "manual")
+- [ ] Routing decision tree followed
+- [ ] "Capabilities Used" section in phase plan
+- [ ] No rebuilding of available capabilities
+
+### Plan Quality
 - [ ] Every spec acceptance criterion maps to at least one task
 - [ ] Tasks ordered by dependency graph
 - [ ] Each task is atomic with measurable success criterion

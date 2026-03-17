@@ -20,12 +20,16 @@ and re-run `/audit` first.
 
 ## Step 1: Read Current State
 
-1. Read `.spear/ratchet/ratchet.json` -- current thresholds and rules
-2. Read `.spear/output/audit/audit-report.md` -- findings and measurements
-3. Read `.spear/output/execute/execution-report.md` -- fitness results
+1. Read `.spear/ratchet/ratchet.json` -- current thresholds, rules, and cycle times
+2. Read `.spear/output/audit/audit-report.md` -- findings, measurements, and capability utilization
+3. Read `.spear/output/execute/execution-report.md` -- fitness results, phase duration, capability utilization
 4. Read `.spear/ratchet/history.jsonl` -- past threshold changes
+5. Read `.spear/capability-registry.json` -- registered capabilities
+6. Read `.spear/output/spec/requirement-challenge.md` -- Musk gate results
+7. Read `.spear/output/spec/deletion-proposal.md` -- deletion results
 
-Report: current thresholds, measured values, and any gap between them.
+Report: current thresholds, measured values, cycle time for this phase,
+and capability utilization rate.
 
 ## Step 2: Auto-Tighten Thresholds
 
@@ -105,16 +109,44 @@ Append every threshold change and rule creation to `.spear/ratchet/history.jsonl
 {"timestamp": "ISO-8601", "type": "rule_created", "rule_id": "RULE-NNN", "from_finding": "...", "description": "..."}
 ```
 
+## Step 5b: Record Cycle Time
+
+Extract phase durations from the execution report and spec/plan timestamps:
+- Spec phase duration (start → approval)
+- Plan phase duration (start → plan approved)
+- Execute phase duration (start → all fitness green)
+- Audit phase duration (start → verdict)
+- Ratchet phase duration (now)
+
+Add to `cycle_times` section in `ratchet.json`. Compare to rolling average
+of last 3 cycles. Flag SLOW (>2x avg) or FAST (<0.5x avg) phases.
+
+## Step 5c: Record Capability Utilization
+
+From the execution report and audit report, compile:
+- Total registered capabilities available
+- Total capabilities actually used
+- Utilization rate (used / available)
+- Missed opportunities (available but not used, no deviation logged)
+- Fallback incidents (assigned but unavailable at runtime)
+
+Add to retrospective. If utilization < 50%, flag as INFO: "Consider whether
+the capability registry needs updating or whether tasks are under-leveraging
+available tools."
+
 ## Step 6: Write Retrospective
 
-Produce a brief retrospective for this cycle:
+Produce a retrospective for this cycle using the template at
+`.spear/templates/ratchet/retrospective.md`. Must include ALL sections:
 
 1. **What went well:** (bullets)
 2. **What did not go well:** (bullets)
-3. **What to do differently next time:** (bullets)
-4. **Metrics snapshot:** threshold table with before/after
-5. **Rules created:** list with descriptions
-6. **Memory entries added:** count by category
+3. **Musk Gate Results:** requirements challenged/killed/simplified, deletions
+4. **Cycle Time:** per-phase durations with SLOW/FAST flags
+5. **Capability Utilization:** used vs. available, missed opportunities
+6. **Metrics snapshot:** threshold table with before/after
+7. **Rules created:** list with descriptions
+8. **Memory entries added:** count by category
 
 Write to: `.spear/output/ratchet/retrospective.md`
 
@@ -123,6 +155,7 @@ Write to: `.spear/output/ratchet/retrospective.md`
 Write the updated `ratchet.json` with:
 - New threshold values
 - New rules added to `active_rules`
+- `cycle_times` entry for this cycle (per-phase durations + flags)
 - Updated `last_updated` timestamp
 - Incremented version
 

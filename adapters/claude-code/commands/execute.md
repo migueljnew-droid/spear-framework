@@ -27,22 +27,43 @@ running `/plan` first.
    fitness functions are green.
 4. **Read relevant code.** Before modifying any file, read it first.
    Match existing patterns, conventions, and style.
+5. **Load the Capability Registry.** Read `.spear/capability-registry.json`.
+   For each task in the phase plan, note which registered capability is assigned.
+   Load the "Capabilities Used" section from the phase plan. Categorize by timing:
+   - **continuous**: use throughout execution (skills like senior-fullstack)
+   - **post-write**: invoke after writing code (code-review, testing)
+   - **at-commit**: invoke at commit time (commit-commands, lint)
+   - **post-phase**: invoke after all tasks (audit prep, PR review)
+   - **on-demand**: invoke when specific domain knowledge is needed (SOVEREIGN agents)
+6. **Record start timestamp.** Note the time execution begins (for cycle time tracking).
 
-Report: which phase you are executing, how many tasks, current ratchet state.
+Report: which phase you are executing, how many tasks, current ratchet state,
+and which capabilities are loaded for this phase.
 
 ## Step 2: Execute Tasks in Order
 
 Follow the task order from the phase plan. For each task:
 
-1. **Announce the task.** State which task you are working on.
-2. **Implement.** Write code, tests, and docs as specified.
-3. **Atomic commits.** Each commit must:
+1. **Announce the task.** State which task you are working on and which
+   registered capability (if any) is assigned to it.
+2. **Use the assigned capability.** If the task has a registered capability:
+   - **Skill** → invoke via Skill tool
+   - **SOVEREIGN agent** → invoke via `mcp__council__invoke_agent`
+   - **MCP tool** → call directly
+   - **Claude Code agent** → dispatch via Agent tool
+   - **Dependency** → write code using the dependency
+   - **"manual"** → implement from scratch
+   If the assigned capability is unavailable, fall back to manual and log a deviation.
+3. **Implement.** Write code, tests, and docs as specified.
+4. **Atomic commits.** Each commit must:
    - Contain exactly one logical change
    - Use conventional commit format: `type(scope): description`
    - Leave the codebase buildable and testable
    - Reference the shard and phase: `Refs: SHARD-NNN, PHASE-NNN`
-4. **Verify.** Run tests and fitness functions for the task's success criterion.
-5. **Log deviations.** If you deviate from the plan, immediately log it using
+5. **Verify.** Run tests and fitness functions for the task's success criterion.
+6. **Post-write capabilities.** After writing code, invoke any capabilities
+   with `post-write` timing (e.g., code-review skills, testing agents).
+7. **Log deviations.** If you deviate from the plan, immediately log it using
    `.spear/templates/execute/deviation-log.md`. Include: what was planned,
    what you did instead, why, and impact on subsequent tasks.
 
@@ -85,15 +106,30 @@ After all tasks are complete:
 
 1. **Run the full test suite.** Not just new tests -- everything.
 2. **Run all fitness functions.** Record final values.
-3. **Produce the execution report.** Write to `.spear/output/execute/execution-report.md`:
+3. **Invoke post-phase capabilities.** Run any capabilities with `post-phase`
+   timing (e.g., code-reviewer agent, PR test analyzer, type design analyzer).
+   These run in parallel if independent. Log their findings.
+4. **Record end timestamp.** Note the time execution completes (for cycle time tracking).
+5. **Produce the execution report.** Write to `.spear/output/execute/execution-report.md`:
    - Summary of what was done
    - Any deviations from the plan
    - All checkpoint results
    - Final fitness function values
    - List of all commits
+   - **Capability utilization**: which registered capabilities were used vs. available
+   - **Phase duration**: start → end timestamp (feeds ratchet cycle time tracking)
 
 ## Step 6: Self-Audit Checklist
 
+### Capability Registry
+- [ ] Registry loaded at pre-execution (Step 1.5)
+- [ ] Each task used its assigned capability (or deviation logged)
+- [ ] Post-write capabilities invoked after code changes
+- [ ] Post-phase capabilities invoked after all tasks
+- [ ] Capability utilization recorded in execution report
+- [ ] No task rebuilt functionality available in a registered capability
+
+### Execution Quality
 - [ ] Phase plan followed completely (or all deviations logged)
 - [ ] All commits are atomic with conventional messages
 - [ ] All tests pass -- both new and existing
@@ -102,8 +138,9 @@ After all tasks are complete:
 - [ ] No hardcoded secrets, magic numbers, or config in code
 - [ ] Error handling is explicit everywhere
 - [ ] Existing codebase patterns matched, not replaced
-- [ ] Execution report is complete
+- [ ] Execution report is complete (including capability utilization + phase duration)
 - [ ] Every file was read before being modified
+- [ ] Start and end timestamps recorded for cycle time tracking
 
 ## Transition
 
