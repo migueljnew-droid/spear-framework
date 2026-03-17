@@ -63,14 +63,44 @@ Update thresholds, generate rules, record decisions, and update memory after eac
    ```
 9. **History is append-only.** Never modify or delete history entries. The history is the audit trail.
 
+### Cycle Time Tracking (Musk Step 4: Accelerate)
+
+> "Then you can accelerate cycle time. But only after you've questioned, deleted, and simplified." — Elon Musk
+
+10. **Track cycle time per phase.** Record the wall-clock duration of each phase in the cycle:
+    - Spec phase duration (start → approval)
+    - Plan phase duration (start → fitness functions defined)
+    - Execute phase duration (start → all fitness functions passing)
+    - Audit phase duration (start → GO/NO-GO verdict)
+    - Total cycle duration (Spec start → Ratchet complete)
+11. **Flag slowdowns.** Compare phase durations to the rolling average of the last 3 cycles:
+    - If a phase took **>2x the rolling average**: flag as `SLOW` in the retrospective with investigation prompt
+    - If a phase took **<0.5x the rolling average**: flag as `FAST` — validate that quality wasn't sacrificed (check audit findings)
+    - If fewer than 3 prior cycles exist, record but don't compare
+12. **Track cycle time in ratchet state.** Add a `cycle_times` section to ratchet state:
+    ```json
+    "cycle_times": {
+      "CYCLE-NNN": {
+        "spec_minutes": 45,
+        "plan_minutes": 30,
+        "execute_minutes": 180,
+        "audit_minutes": 20,
+        "ratchet_minutes": 10,
+        "total_minutes": 285,
+        "flags": ["execute:SLOW"]
+      }
+    }
+    ```
+    This data feeds the retrospective and enables spotting systematic bottlenecks across cycles.
+
 ### Memory Updates
 
-10. **Update memory with decisions.** After processing, update the project memory with:
+13. **Update memory with decisions.** After processing, update the project memory with:
     - **Decisions**: what was decided and why (threshold changes, new rules)
     - **Patterns**: successful approaches discovered during this phase
     - **Antipatterns**: approaches that failed or caused regressions
     - **Lessons**: anything learned that future phases should know
-11. **Create the retrospective.** Summarize the phase cycle:
+14. **Create the retrospective.** Summarize the phase cycle:
     - What went well (fitness functions that improved)
     - What went poorly (regressions, unexpected issues)
     - What to change next time (process improvements)

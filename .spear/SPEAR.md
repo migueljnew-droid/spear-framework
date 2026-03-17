@@ -21,12 +21,20 @@ Read this file first. It is the single source of truth for the framework.
 ```
 
 ### Phase 1: SPEC
-Define what to build and why. No code. No implementation details. Socratic questioning to refine requirements.
+Define what to build and why. No code. No implementation details. Challenge requirements before accepting them.
+
+SPEAR's Spec phase integrates Elon Musk's first three manufacturing steps — applied to software:
+
+1. **Challenge requirements** (Musk Step 1) — Every requirement is questioned: who needs it, what's the cost of skipping it, is it from domain expertise or assumption. Requirements are KEPT, KILLED, or SIMPLIFIED.
+2. **Propose deletions** (Musk Step 2) — Before adding anything, identify dead code, redundant processes, over-engineering, and dependency bloat to remove.
+3. **Simplify** (Musk Step 3) — Reduce surviving scope to its minimum useful form. Only then write the spec.
+
+> Musk Steps 4 (accelerate) and 5 (automate) map to Execute and Ratchet respectively.
 
 **Inputs:** User request, existing codebase context, memory/decisions, ratchet retrospective
-**Outputs:** PRD, architecture doc, epic shards (bite-sized deliverables)
+**Outputs:** Requirement Challenge Log, Deletion Proposal, PRD, architecture doc, epic shards
 **Gate:** Spec-document-reviewer validates. Human partner explicitly approves. Hard gate — no implementation without approval.
-**Method:** One question at a time. Multiple choice over open-ended. 2-3 design approaches with trade-offs.
+**Method:** Challenge → Delete → Simplify → Socratic questioning → 2-3 design approaches with trade-offs.
 **Templates:** `templates/spec/prd.md`, `templates/spec/architecture.md`, `templates/spec/epic-shard.md`
 
 ### Phase 2: PLAN
@@ -78,10 +86,10 @@ Independent review across 6 categories. Parallel-runnable. Each category produce
 **Templates:** `templates/audit/audit-report.md`, `templates/audit/audit-summary.md`, `templates/audit/finding.md`
 
 ### Phase 5: RATCHET
-Learn from the cycle. Tighten thresholds. Record decisions.
+Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 
-**Inputs:** Audit results, fitness function measurements, execution history
-**Outputs:** Updated thresholds, new rules, retrospective, memory entries
+**Inputs:** Audit results, fitness function measurements, execution history, phase timestamps
+**Outputs:** Updated thresholds, new rules, cycle time analysis, retrospective, memory entries
 **Gate:** Ratchet state updated. No threshold loosened without justification.
 
 #### Ratchet Mechanics
@@ -91,6 +99,15 @@ Learn from the cycle. Tighten thresholds. Record decisions.
 - **Auto-tighten policy:** When a metric improves by >5% over threshold, the threshold ratchets up/down to the new level minus a 2% buffer
 - **Override:** Requires written justification logged in `ratchet/history.jsonl`
 - **Rules:** Audit findings with severity >= HIGH auto-generate ratchet rules
+
+#### Cycle Time Tracking (Musk Step 4: Accelerate)
+
+- **Phase durations** recorded per cycle: Spec, Plan, Execute, Audit, Ratchet (in minutes)
+- **Rolling average** computed from last 3 cycles
+- **SLOW flag**: phase took >2x rolling average → root cause investigation required
+- **FAST flag**: phase took <0.5x rolling average → verify quality wasn't sacrificed
+- **Stored in** `ratchet/ratchet.json` under `cycle_times` key
+- Cycle time is tracked but NOT auto-tightened — it's a diagnostic signal, not a quality gate
 
 **Templates:** `templates/ratchet/ratchet-entry.md`, `templates/ratchet/rule-proposal.md`, `templates/ratchet/retrospective.md`
 
@@ -185,5 +202,6 @@ SPEAR is AI-tool-agnostic at its core. Adapters translate SPEAR concepts into to
 
 ---
 
-*SPEAR v2.0.0 — Created by Miguel Jiminez*
+*SPEAR v2.1.0 — Created by Miguel Jiminez*
+*v2.1: Musk 5-Step Integration — requirement challenge gate, deletion audit, simplification pass, cycle time tracking*
 *v2.0: TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, parallel dispatch, worktree isolation*

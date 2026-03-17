@@ -30,6 +30,32 @@ duration: "[e.g., 3d, 1w, 2w]"
 - [Something unexpected — good or bad — that was not anticipated in planning]
 - [Something unexpected]
 
+## Musk Gate Results (Requirement Challenge)
+
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Requirements challenged | [e.g., 8] | [total from requirement-challenge.md] |
+| Requirements KILLED | [e.g., 2] | [which ones and why] |
+| Requirements SIMPLIFIED | [e.g., 1] | [what was reduced] |
+| Deletions proposed | [e.g., 3] | [from deletion-proposal.md] |
+| Deletions executed | [e.g., 2] | [what was actually removed] |
+| Net scope reduction | [e.g., -25%] | [estimated reduction from original ask] |
+
+> If all requirements survived unchallenged, explain why. "No deletions" requires justification.
+
+## Cycle Time (Musk Step 4: Accelerate)
+
+| Phase | Duration | Rolling Avg (last 3) | Flag |
+|-------|----------|---------------------|------|
+| Spec | [e.g., 45m] | [e.g., 40m] | [OK / SLOW / FAST] |
+| Plan | [e.g., 30m] | [e.g., 35m] | [OK / SLOW / FAST] |
+| Execute | [e.g., 180m] | [e.g., 120m] | [SLOW — investigate] |
+| Audit | [e.g., 20m] | [e.g., 18m] | [OK] |
+| Ratchet | [e.g., 10m] | [e.g., 12m] | [OK] |
+| **Total** | [e.g., 285m] | [e.g., 225m] | [SLOW] |
+
+> SLOW (>2x avg): investigate root cause. FAST (<0.5x avg): verify quality wasn't sacrificed.
+
 ## Metrics Delta
 
 | Metric | Before Cycle | After Cycle | Delta | Ratchet Updated? |
