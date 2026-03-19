@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.0] - 2026-03-19
+
+### Added
+- **Browser CDP MCP** — 31-tool browser automation package via Chrome DevTools Protocol (`packages/browser-cdp-mcp/`). Accessibility tree parsing, numbered element annotations on screenshots, smart DOM simplification, shadow DOM + iframe traversal, network interception, console/error capture, multi-tab management, element caching, self-healing selectors.
+- **UI/Visual Audit Category** — 7th audit category that opens the app in a real browser during `/spear:audit`. Checks console errors, failed network requests, visual rendering, interactive elements via accessibility tree, broken links, and basic accessibility. Auto-skips when no web UI detected.
+- **Auto-observe** — Every browser action (navigate, click, type, scroll) automatically returns an annotated screenshot with numbered element labels + the accessibility tree + any console errors. No manual observation step needed.
+- **`auditPage` tool** — Single MCP call runs a full visual + functional audit: navigates, screenshots, reads accessibility tree, checks console, scans network, reports PASS/ISSUES FOUND.
+- `install.sh` updated to build browser-cdp MCP during SPEAR installation
+
+### Changed
+- Audit categories: 6 → 7 (added UI/Visual)
+- `spear-auditor.md` agent spawns 8 parallel tasks (7 categories + test integrity)
+- `CLAUDE.md` adapter updated with UI/Visual category in audit table
+- README badges, audit section, key features, comparison table, and project structure updated
+
 ## [2.0.0] - 2026-03-12
 
 ### Added

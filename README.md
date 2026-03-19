@@ -12,10 +12,10 @@
 
 <br /><br />
 
-<img src="https://img.shields.io/badge/version-2.1.0-4d8dff?style=flat-square" alt="v2.1.0" />&nbsp;
+<img src="https://img.shields.io/badge/version-2.2.0-4d8dff?style=flat-square" alt="v2.2.0" />&nbsp;
 <img src="https://img.shields.io/badge/phases-5-4d8dff?style=flat-square" alt="5 Phases" />&nbsp;
 <img src="https://img.shields.io/badge/agents-14-4d8dff?style=flat-square" alt="14 Agents" />&nbsp;
-<img src="https://img.shields.io/badge/audit%20categories-6-4d8dff?style=flat-square" alt="6 Audit Categories" />&nbsp;
+<img src="https://img.shields.io/badge/audit%20categories-7-4d8dff?style=flat-square" alt="7 Audit Categories" />&nbsp;
 <img src="https://img.shields.io/badge/SAST-CodeQL%20%2B%20Semgrep-4d8dff?style=flat-square" alt="SAST Integration" />&nbsp;
 <img src="https://img.shields.io/badge/AI%20tools-6-4d8dff?style=flat-square" alt="6 AI Tools" />&nbsp;
 <img src="https://img.shields.io/badge/dependencies-0-4d8dff?style=flat-square" alt="Zero Dependencies" />&nbsp;
@@ -24,7 +24,7 @@
 <br /><br />
 
 **A spec-driven, audit-gated, self-improving development methodology for AI-assisted workflows.**<br />
-Five phases. Six audit categories. Integrated SAST. One direction: forward.
+Five phases. Seven audit categories. Browser automation. Integrated SAST. One direction: forward.
 
 <br />
 
@@ -81,7 +81,7 @@ SPEAR is a drop-in methodology that adds structure, audit gates, and a learning 
 </tr>
 <tr>
 <td><b>A</b></td>
-<td><b>Audit</b> — Independent review across 6 categories. GO/NO-GO verdict.</td>
+<td><b>Audit</b> — Independent review across 7 categories including browser visual verification. GO/NO-GO verdict.</td>
 </tr>
 <tr>
 <td><b>R</b></td>
@@ -109,9 +109,9 @@ cd your-project && ./install.sh
 
 <br />
 
-## The 6 Audit Categories
+## The 7 Audit Categories
 
-Every change is reviewed across six independent, parallel categories. Each produces its own verdict.
+Every change is reviewed across seven independent, parallel categories. Each produces its own verdict.
 
 <table>
 <tr><th>Category</th><th>What It Checks</th></tr>
@@ -121,6 +121,7 @@ Every change is reviewed across six independent, parallel categories. Each produ
 <tr><td><img src="https://img.shields.io/badge/-Code%20Quality-2266cc?style=flat-square" /></td><td>Duplication, dead code, naming, error handling</td></tr>
 <tr><td><img src="https://img.shields.io/badge/-Documentation-2288cc?style=flat-square" /></td><td>API docs, README accuracy, changelog</td></tr>
 <tr><td><img src="https://img.shields.io/badge/-Architecture-22aacc?style=flat-square" /></td><td>Layer violations, circular deps, pattern consistency</td></tr>
+<tr><td><img src="https://img.shields.io/badge/-UI%2FVisual-ff6b35?style=flat-square" /></td><td>Browser verification via CDP — console errors, failed requests, accessibility tree, visual rendering</td></tr>
 </table>
 
 **Severity levels:** `CRITICAL` (blocks deploy) → `HIGH` (fix or justify) → `MEDIUM` → `LOW` → `INFO`
@@ -171,7 +172,8 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 <tr><td><b>Systematic Debugging</b></td><td>4-phase protocol: Root Cause → Pattern Analysis → Hypothesis → Fix. 3 failed fixes = escalate (architectural issue).</td></tr>
 <tr><td><b>Subagent Execution</b></td><td>Fresh agent per task. Two-stage review (spec compliance → code quality). Model routing by complexity.</td></tr>
 <tr><td><b>Worktree Isolation</b></td><td>Every execution phase starts in a clean git worktree. Verified baseline before any changes.</td></tr>
-<tr><td><b>6-Category Audit</b></td><td>Parallel, independent audits with severity classification</td></tr>
+<tr><td><b>7-Category Audit</b></td><td>Parallel, independent audits with severity classification — includes browser visual verification</td></tr>
+<tr><td><b>Browser CDP MCP</b></td><td>31-tool browser automation via Chrome DevTools Protocol. Accessibility tree, annotated screenshots, network interception, console capture.</td></tr>
 <tr><td><b>Learning Ratchet</b></td><td>Auto-tightening thresholds. Quality only goes up.</td></tr>
 <tr><td><b>Fitness Functions</b></td><td>Automated metric checks against ratchet thresholds</td></tr>
 <tr><td><b>Project Memory</b></td><td>Decisions, patterns, and findings persist across cycles</td></tr>
@@ -192,6 +194,7 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 <tr><td>Fitness functions</td><td align="center">&#9989;</td><td align="center">&#10060;</td><td align="center">&#9989;</td><td align="center">&#10060;</td></tr>
 <tr><td>Project memory</td><td align="center">&#9989;</td><td align="center">&#10060;</td><td align="center">&#10060;</td><td align="center">&#10060;</td></tr>
 <tr><td>Multi-tool support</td><td align="center"><b>6 tools</b></td><td align="center">Claude only</td><td align="center">Claude only</td><td align="center">Tool-specific</td></tr>
+<tr><td>Browser visual audit</td><td align="center">&#9989;</td><td align="center">&#10060;</td><td align="center">&#10060;</td><td align="center">&#10060;</td></tr>
 <tr><td>Pre-commit hooks</td><td align="center">&#9989;</td><td align="center">&#10060;</td><td align="center">&#10060;</td><td align="center">&#10060;</td></tr>
 <tr><td>No package manager</td><td align="center">&#9989;</td><td align="center">&#9989;</td><td align="center">&#10060;</td><td align="center">&#9989;</td></tr>
 </table>
@@ -247,11 +250,14 @@ cat .spear/ratchet/ratchet.json
 │   ├── planner.md         <- Phase planning + fitness functions
 │   ├── verifier.md        <- Phase + project verification
 │   ├── ratchet-engine.md  <- Threshold management + retrospectives
-│   └── audit-*.md         <- 6 independent audit category agents
+│   └── audit-*.md         <- 7 independent audit category agents
 ├── ratchet/               <- Threshold state + history + rules
 ├── output/                <- Phase output artifacts
 ├── memory/                <- Project knowledge base
 └── fitness/               <- Automated fitness functions
+
+packages/                  <- Built-in tooling
+│   └── browser-cdp-mcp/   <- 31-tool browser automation MCP (Chrome DevTools Protocol)
 
 adapters/                  <- AI tool integrations
 hooks/                     <- Git hooks + checker scripts
