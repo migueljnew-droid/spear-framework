@@ -281,6 +281,30 @@ if [ -d ".spear/fitness/examples" ]; then
   ok "Fitness functions made executable"
 fi
 
+# ─── Browser CDP MCP (UI/Visual Audit) ────────────────────
+if [ -d "$SPEAR_SRC/packages/browser-cdp-mcp" ]; then
+  info "Setting up browser-cdp MCP for UI/Visual audit category..."
+  BROWSER_CDP_DIR="$HOME/.spear/browser-cdp-mcp"
+  mkdir -p "$BROWSER_CDP_DIR"
+  cp -r "$SPEAR_SRC/packages/browser-cdp-mcp/"* "$BROWSER_CDP_DIR/" 2>/dev/null || true
+
+  if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+    (cd "$BROWSER_CDP_DIR" && npm install --silent 2>/dev/null && npx tsc 2>/dev/null) && \
+      ok "browser-cdp MCP built (31 tools for UI/Visual audit)" || \
+      warn "browser-cdp MCP build failed — UI/Visual audit will be skipped"
+  else
+    warn "Node.js not found — browser-cdp MCP requires Node.js 18+. UI/Visual audit will be skipped."
+  fi
+
+  # Add to .mcp.json if Claude Code adapter
+  if [ "$ADAPTER" = "claude-code" ] && [ -f "$HOME/.mcp.json" ]; then
+    if ! grep -q "browser-cdp" "$HOME/.mcp.json" 2>/dev/null; then
+      info "Add browser-cdp to ~/.mcp.json manually:"
+      echo "  \"browser-cdp\": { \"command\": \"node\", \"args\": [\"$BROWSER_CDP_DIR/dist/index.js\"] }"
+    fi
+  fi
+fi
+
 # ─── Summary ──────────────────────────────────────────────
 echo ""
 printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"

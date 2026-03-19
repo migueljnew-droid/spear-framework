@@ -27,7 +27,7 @@ through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
 | `/spec` | Spec | Build capability registry, challenge requirements, produce PRD + architecture + shards |
 | `/plan` | Plan | Break spec into phased tasks with fitness functions |
 | `/execute` | Execute | Implement one phase with atomic commits and checkpoints |
-| `/audit` | Audit | Run 6-category audit, produce GO/NO-GO verdict |
+| `/audit` | Audit | Run 7-category audit, produce GO/NO-GO verdict |
 | `/ratchet` | Ratchet | Update thresholds, track cycle time, analyze capability utilization, record decisions |
 | `/status` | Any | Show current SPEAR state and ratchet thresholds |
 
@@ -41,8 +41,10 @@ through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
 | Code Quality | HIGH | Duplication, dead code, naming, error handling |
 | Documentation | CRITICAL | Public API docs, README accuracy, changelog |
 | Architecture | HIGH | Layer violations, circular deps, pattern consistency |
+| UI/Visual | CRITICAL | Console errors, failed requests, broken UI, accessibility |
 
 **CRITICAL = blocks deployment, no override. HIGH = blocks unless explicitly justified.**
+**UI/Visual auto-skips if no web UI detected. Requires `browser-cdp` MCP (`packages/browser-cdp-mcp/`).**
 
 ## Severity Levels
 
