@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.3.0] - 2026-04-02
+
+### Added
+- **Ignite Phase** — Pre-spec intent clarification. Understand the real problem, constraints, and stakeholder context before defining any solution. New `/spear:ignite` command.
+- **Productize Phase** — Post-ratchet productization. Packaging, distribution prep, documentation polish, and go-to-market readiness. New `/spear:productize` command.
+- **Competitor Research** — Built-in competitor landscape scanning integrated into the Spec phase. Know what exists before you build. New `/spear:competitor-research` command and `competitor-researcher.md` agent.
+- **Competitor Analysis Template** — `templates/plan/competitor-analysis.md` for structured competitor evaluation during planning.
+
+### Changed
+- Phases: 5 → 7 (added Ignite before Spec, Productize after Ratchet)
+- Agents: 14 → 15 (added competitor-researcher)
+- Spec phase enhanced with competitor research integration and Socratic questioning improvements
+- Plan phase enhanced with competitor analysis template and risk-aware planning
+- Audit phase expanded with deeper validation categories
+- README updated: badges, flow diagram, phase table, key features, project structure
+- SPEAR.md core framework doc updated with new phase definitions
+- config.json updated with new phase configuration
+
 ## [2.2.0] - 2026-03-19
 
 ### Added
