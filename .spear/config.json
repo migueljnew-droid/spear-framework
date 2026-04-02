@@ -24,7 +24,7 @@
       "guardian": {
         "enabled": true,
         "provider": "gemini",
-        "model": "gemini-2.5-flash",
+        "model": "gemini-2.5-flash-preview-05-20",
         "categories": ["security", "architecture"],
         "stop_on": "CRITICAL",
         "warn_on": "HIGH",
@@ -62,7 +62,7 @@
         "name": "gemini",
         "enabled": true,
         "provider": "gemini",
-        "model": "gemini-2.5-flash",
+        "model": "gemini-2.5-flash-preview-05-20",
         "categories": ["security", "performance", "architecture"],
         "mode": "delta",
         "orchestration": "swarm",

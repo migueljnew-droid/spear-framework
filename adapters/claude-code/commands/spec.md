@@ -7,6 +7,24 @@ You are entering the **Spec phase** of the SPEAR framework. Your job is to
 translate the user's request into structured, unambiguous specifications that
 any executor can implement without guesswork.
 
+## Step 0: Load Ignition Outputs (MANDATORY)
+
+Ignition is a **hard gate** for the Spec phase. Check for outputs in
+`.spear/output/ignition/`:
+
+1. `outcome.md` -- The Outcome Formula (deliverable + result + audience + context)
+2. `key-questions.md` -- All answered questions from the 7 categories
+3. `role-assignment.md` -- Expert role(s) assigned for this project
+4. `first-principles.md` -- Assumptions challenged, fundamentals identified
+
+**If ANY of these files are missing, STOP.** Tell the user:
+"Ignition phase is required before Spec. Run /spear:ignite first."
+Do NOT proceed with the Spec phase without Ignition outputs.
+
+The Outcome Formula defines what "done" looks like. The Key Questions eliminate
+assumptions. The First Principles challenge validates the approach. These are
+your primary inputs for everything that follows.
+
 ## Step 1: Read Context & Build Capability Registry
 
 Before writing anything, read the following (skip if file does not exist):
@@ -70,7 +88,37 @@ After challenging and deleting, simplify what remains:
 
 Document simplifications applied in the PRD's Background section.
 
-## Step 5: Clarify Requirements
+## Step 5: Constraints First
+
+Map the walls before designing the room. Every project operates within limits.
+Identifying them now prevents scope creep, over-engineering, and broken promises.
+
+### The 7 Constraint Categories
+
+For the surviving scope, map constraints in each category:
+
+1. **Budget** -- What's available? Cost per phase? Cost of doing nothing?
+2. **Time** -- Hard deadlines (court dates, launches, grant deadlines) vs soft deadlines.
+   Dependencies that affect timing.
+3. **Team** -- Who's available? Skill levels? Bandwidth?
+4. **Technology** -- Platform limitations. Integration requirements. Legacy systems.
+5. **Legal and Regulatory** -- Compliance requirements. Jurisdictional rules. Licensing.
+6. **Knowledge** -- What do we know vs need to learn? What expertise is available?
+7. **Client/User** -- Technical sophistication. Decision-making process. Risk tolerance.
+
+### Hard vs Soft
+
+Categorize every constraint as:
+- **Hard** (cannot be changed): court deadlines, legal requirements, platform limits
+- **Soft** (can be negotiated): timelines, budgets, feature scope
+
+Hard constraints become non-negotiable design requirements.
+Soft constraints become trade-off decisions.
+
+**If constraints make the Outcome (Pillar 0) impossible, surface that NOW -- not
+after building.** Write constraints to the PRD's Technical Constraints section.
+
+## Step 5b: Clarify Requirements
 
 Ask the user clarifying questions about the SURVIVING (post-challenge) scope.
 Group them by category:
@@ -89,7 +137,28 @@ If anything requires technical investigation (library capabilities, API limits,
 performance characteristics), create a research brief using the template at
 `.spear/templates/plan/research-brief.md`. Do NOT guess -- flag it.
 
-## Step 7: Produce Outputs
+## Step 7: Format Specification (Non-Code Deliverables)
+
+If this SPEAR cycle produces non-code deliverables (documents, reports, proposals,
+grant applications, presentations, marketing materials), define the exact format
+BEFORE building. Ambiguity in format creates revision loops.
+
+### The Format Checklist
+
+For each non-code deliverable, specify:
+
+- **Document Type**: Report, memo, email, proposal, script, code, presentation?
+- **File Formats**: PDF, Word, Markdown, HTML? What does the recipient need?
+- **Structure**: Table of contents? Section headings? Appendices?
+- **Length**: Word count range. Page count target. Character limits if applicable.
+- **Visual Elements**: Tables? Charts? Images? What types?
+- **Tone**: Formal or conversational? Technical level? Brand voice?
+- **Naming Convention**: File naming pattern. Version numbering.
+
+Write the format spec to the relevant shard or PRD deliverable section.
+If no non-code deliverables exist, skip this step.
+
+## Step 8: Produce Outputs
 
 Create the following files using the SPEAR templates:
 
@@ -117,9 +186,22 @@ Create the following files using the SPEAR templates:
 - Template: `.spear/templates/plan/research-brief.md`
 - Write to: `.spear/output/spec/research/RB-001-[name].md`, etc.
 
-## Step 8: Self-Audit Checklist
+## Step 9: Self-Audit Checklist
 
 Before presenting outputs, verify:
+
+### Ignition Gate (Step 0)
+- [ ] Ignition outputs loaded (if `/ignite` was run) or user notified to consider it
+- [ ] Outcome Formula referenced in PRD problem statement (if available)
+- [ ] Key Questions answers incorporated (no re-asking what was already answered)
+
+### Constraints Gate (Step 5)
+- [ ] All 7 constraint categories evaluated (budget, time, team, tech, legal, knowledge, client)
+- [ ] Each constraint classified as Hard or Soft
+- [ ] No Hard constraint conflicts with the Outcome -- or conflict surfaced to user
+
+### Format Gate (Step 7)
+- [ ] Non-code deliverables have format specs (or "no non-code deliverables" noted)
 
 ### Musk Gate (Steps 2-4)
 - [ ] Requirement Challenge Log produced with verdicts for every requirement
@@ -140,7 +222,7 @@ Before presenting outputs, verify:
 - [ ] Specs are written so someone without context can implement them
 - [ ] Past decisions from memory are referenced where relevant
 
-## Step 9: Present and Review
+## Step 10: Present and Review
 
 Present a summary of all outputs with:
 1. The problem being solved (1-2 sentences)

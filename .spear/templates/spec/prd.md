@@ -9,6 +9,15 @@ epic: "[EPIC-ID]"
 
 # Product Requirements Document: [Product/Feature Name]
 
+## Outcome Formula
+
+> I need [SPECIFIC DELIVERABLE]
+> that [MEASURABLE ACTION OR RESULT]
+> for [TARGET AUDIENCE]
+> in [CONTEXT OR TIMEFRAME]
+
+*Source: `.spear/output/ignition/outcome.md` (if Ignition was run) or define here.*
+
 ## Overview
 
 [1-2 paragraph high-level description of what this product/feature is and why it matters. Write for someone with zero context.]
@@ -50,14 +59,29 @@ epic: "[EPIC-ID]"
 - [ ] [Given/When/Then or concrete assertion]
 - [ ] [Given/When/Then or concrete assertion]
 
-## Technical Constraints
+## Constraints
 
+### Hard Constraints (non-negotiable)
+| Category | Constraint | Source |
+|----------|-----------|--------|
+| **Technology** | [e.g., Rust 1.75+, iOS 16+] | [who set this] |
+| **Legal/Regulatory** | [e.g., GDPR, SOC2, HIPAA] | [regulation] |
+| **Time** | [e.g., court deadline April 6, grant deadline April 15] | [source] |
+| **Platform** | [e.g., Linux x86_64, App Store guidelines] | [requirement] |
+
+### Soft Constraints (negotiable trade-offs)
+| Category | Constraint | Flexibility |
+|----------|-----------|-------------|
+| **Budget** | [available resources] | [what can be adjusted] |
+| **Team** | [bandwidth, skill gaps] | [what can be hired/learned] |
+| **Knowledge** | [what we need to learn] | [research vs build] |
+| **Timeline** | [soft deadlines, preferences] | [what can slip] |
+
+### Technical Specifications
 - **Language/Runtime:** [e.g., Rust 1.75+, Node 20 LTS]
-- **Platform:** [e.g., Linux x86_64, iOS 16+]
 - **Performance:** [e.g., p99 latency < 200ms]
 - **Data:** [e.g., Must handle 10K concurrent users]
-- **Compliance:** [e.g., GDPR, SOC2, HIPAA]
-- **Other:** [Any additional hard constraints]
+- **Other:** [Any additional technical requirements]
 
 ## Dependencies
 

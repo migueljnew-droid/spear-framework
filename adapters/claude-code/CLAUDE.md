@@ -8,7 +8,7 @@
 
 This project follows the **SPEAR methodology** defined in `.spear/SPEAR.md`.
 SPEAR is the single source of truth for development process. All work flows
-through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
+through sequential phases: **Ignite (mandatory)** → Spec → Plan → Execute → Audit → Ratchet → Productize (optional).
 
 ## Phase Workflow Rules
 
@@ -24,11 +24,13 @@ through five sequential phases: Spec, Plan, Execute, Audit, Ratchet.
 
 | Command | Phase | What It Does |
 |---------|-------|--------------|
-| `/spec` | Spec | Build capability registry, challenge requirements, produce PRD + architecture + shards |
-| `/plan` | Plan | Break spec into phased tasks with fitness functions |
+| `/ignite` | Ignite | Pre-spec intent clarification: Outcome Formula, key questions, role assignment, first principles |
+| `/spec` | Spec | Build capability registry, challenge requirements, map constraints, produce PRD + architecture + shards |
+| `/plan` | Plan | Break spec into phased tasks with fitness functions, 6-vector risk matrix |
 | `/execute` | Execute | Implement one phase with atomic commits and checkpoints |
-| `/audit` | Audit | Run 7-category audit, produce GO/NO-GO verdict |
+| `/audit` | Audit | Outcome verification + 7-category audit, produce GO/NO-GO verdict |
 | `/ratchet` | Ratchet | Update thresholds, track cycle time, analyze capability utilization, record decisions |
+| `/productize` | Productize | Score completed work for revenue potential (7-criteria filter, product form, pricing) |
 | `/status` | Any | Show current SPEAR state and ratchet thresholds |
 
 ## Audit Categories and Blocking Rules

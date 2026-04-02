@@ -109,14 +109,44 @@ Always include these non-functional fitness functions:
 - Build time (should not increase significantly)
 - Lint/clippy clean (zero warnings)
 
-## Step 5: Risk Assessment
+## Step 5: Risk Assessment (6 Attack Vectors)
 
-For each phase, identify risks:
+Before finalizing the plan, run Devil's Advocate against it. Attack the plan
+across all 6 vectors. This is not optional -- every plan has cracks.
 
-| Risk | Likelihood | Impact | Mitigation | Contingency |
-|------|-----------|--------|------------|-------------|
+### The 6 Attack Vectors
 
-And a rollback strategy:
+1. **Logic** -- Does the reasoning hold? Are there logical fallacies? What
+   evidence would disprove this approach?
+
+2. **Audience** -- Would the target users actually respond this way? What if
+   they hate it? Are we projecting our preferences onto them?
+
+3. **Execution** -- What could go wrong during implementation? What dependencies
+   could fail? What happens if the timeline slips?
+
+4. **Competition** -- How would a competitor counter this? Is this already being
+   done better by someone else? What is our actual edge?
+
+5. **Worst Case** -- What is the absolute worst outcome? How likely is it?
+   Can we survive it? What is the recovery plan?
+
+6. **Scale** -- Does this work at 10x volume? Does this work with half the
+   resources? What breaks first under pressure?
+
+### Risk Matrix
+
+After running all 6 vectors, document findings:
+
+| # | Risk | Vector | Likelihood (1-5) | Impact (1-5) | Score (L x I) | Mitigation |
+|---|------|--------|-----------------|-------------|---------------|------------|
+
+**Any risk scoring 15+ (Likelihood x Impact) must have a mitigation plan
+before execution begins. No exceptions.**
+
+### Rollback Strategy
+
+For each phase:
 - What to roll back to (commit, state, checkpoint)
 - How to roll back (exact steps)
 - Irreversible changes (data migrations, etc.)
@@ -136,7 +166,8 @@ And a rollback strategy:
 - [ ] Each task is atomic and has a measurable success criterion
 - [ ] Fitness functions defined for all metrics
 - [ ] Non-functional fitness functions included
-- [ ] Risks identified with mitigation and contingency
+- [ ] All 6 attack vectors evaluated (logic, audience, execution, competition, worst case, scale)
+- [ ] Risk matrix produced with scores -- all risks scoring 15+ have mitigation plans
 - [ ] Rollback strategy documented
 - [ ] Only next phase planned in detail -- future phases are summaries
 - [ ] No ratchet rules violated by the plan

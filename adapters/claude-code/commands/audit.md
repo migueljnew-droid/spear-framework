@@ -138,6 +138,47 @@ Check for:
 
 ---
 
+## Outcome Verification Gate
+
+Before running the technical audit categories, verify that the built thing
+actually delivers what was promised. Code quality is necessary but not sufficient
+-- fitness for purpose is the real test.
+
+### Step A: Load the Outcome
+
+Read the Outcome Formula from `.spear/output/ignition/outcome.md` (if it exists)
+or the PRD problem statement from `.spear/output/spec/prd.md`.
+
+### Step B: Verify Against Outcome
+
+For each part of the Outcome Formula, verify:
+
+| Check | Question | Pass? |
+|-------|----------|-------|
+| Outcome | Does this achieve what the Outcome Formula defined? | |
+| Assumptions | Were all key questions answered? No gaps? | |
+| Expertise | Does the depth match the assigned role? | |
+| Research | Was the topic properly researched? | |
+| Challenged | Were assumptions tested and risks identified? | |
+| Constraints | Does it operate within all hard constraints? | |
+| Format | Does it match the format specification exactly? (non-code only) | |
+| Verified | Are all factual claims sourced? | |
+| Confidence | Overall confidence rating (0-100%) | |
+
+### Step C: Minimum Passing Criteria
+
+- **Minimum QA score**: 80% of checks must pass
+- **Minimum confidence**: 75%
+
+If the output fails the Outcome Verification Gate, it is a NO-GO regardless of
+what the 6 technical categories say. A perfectly coded feature that doesn't
+deliver the outcome is a perfectly coded failure.
+
+Record the Outcome Verification in the audit report under a new section
+between Summary and Category Reports.
+
+---
+
 ## Ensemble Auditing (Multi-LLM Cross-Validation)
 
 If `.spear/config.json` has `audit.ensemble.enabled: true`, run ensemble
@@ -230,12 +271,13 @@ Write the full audit report to: `.spear/output/audit/audit-report.md`
 
 Structure:
 1. **Summary**: Total findings by severity, GO/NO-GO verdict
-2. **Category Reports**: One section per category with all findings
-3. **Capability Utilization**: Which registered capabilities were used, missed, or failed
-4. **Ensemble Results** (if enabled): Providers consulted, additional findings, agreement rates
-5. **Ratchet Compliance**: Did any threshold regress? Did any rule fire?
-6. **Fitness Function Review**: Are all functions green?
-7. **Verdict**: GO, CONDITIONAL GO, or NO-GO with reasoning
+2. **Outcome Verification**: QA score, confidence rating, pass/fail (from Outcome Gate)
+3. **Category Reports**: One section per category with all findings
+4. **Capability Utilization**: Which registered capabilities were used, missed, or failed
+5. **Ensemble Results** (if enabled): Providers consulted, additional findings, agreement rates
+6. **Ratchet Compliance**: Did any threshold regress? Did any rule fire?
+7. **Fitness Function Review**: Are all functions green?
+8. **Verdict**: GO, CONDITIONAL GO, or NO-GO with reasoning
 
 ## After the Audit
 

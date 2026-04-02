@@ -8,20 +8,34 @@ Read this file first. It is the single source of truth for the framework.
 
 ---
 
-## The Five Phases
+## The Full Cycle
 
 ```
-┌──────┐    ┌──────┐    ┌─────────┐    ┌───────┐    ┌─────────┐
-│ SPEC │───>│ PLAN │───>│ EXECUTE │───>│ AUDIT │───>│ RATCHET │
-└──────┘    └──────┘    └─────────┘    └───────┘    └─────────┘
-   │                                       │              │
-   │            ◄── FAIL: return ──────────┘              │
-   │                                                      │
-   ◄──────────────── NEXT CYCLE ──────────────────────────┘
+┌─────────┐    ┌──────┐    ┌──────┐    ┌─────────┐    ┌───────┐    ┌─────────┐    ┌─────────────┐
+│ IGNITE  │───>│ SPEC │───>│ PLAN │───>│ EXECUTE │───>│ AUDIT │───>│ RATCHET │───>│ PRODUCTIZE  │
+└─────────┘    └──────┘    └──────┘    └─────────┘    └───────┘    └─────────┘    └─────────────┘
+   │              │                                       │              │
+   │              │            ◄── FAIL: return ──────────┘              │
+   │              │                                                      │
+   │              ◄──────────────── NEXT CYCLE ──────────────────────────┘
+   │
+   MANDATORY — No spec without Ignition outputs.
 ```
+
+### Phase 0: IGNITE (Mandatory Pre-Spec)
+Force precision of intent before any specification is written. Eliminates ambiguity, assumptions, and wasted cycles. **No spec is written until Ignition is complete.**
+
+Inspired by Project Ignition (Rico Williams, UDIG Solutions). Integrated April 2026.
+
+**Inputs:** User request, existing context
+**Outputs:** Outcome Formula, answered key questions, expert role assignment, first principles challenge
+**Gate:** Outcome Formula passes The Test (a stranger with expertise could deliver without questions). All 50%+ impact gaps resolved. Hard gate -- no spec without Ignition outputs.
+**Method:** Outcome Formula → 7-category key questions → role assignment → first principles decomposition
 
 ### Phase 1: SPEC
 Define what to build and why. No code. No implementation details. Challenge requirements before accepting them.
+
+If IGNITE was run, the Spec phase loads Ignition outputs (Outcome Formula, key questions, role assignment, first principles) as primary input. The Spec phase also maps **constraints** (7 categories: budget, time, team, technology, legal, knowledge, client) classified as Hard vs Soft, and defines **format specifications** for non-code deliverables.
 
 SPEAR's Spec phase integrates Elon Musk's first three manufacturing steps — applied to software:
 
@@ -38,7 +52,7 @@ SPEAR's Spec phase integrates Elon Musk's first three manufacturing steps — ap
 **Templates:** `templates/spec/prd.md`, `templates/spec/architecture.md`, `templates/spec/epic-shard.md`
 
 ### Phase 2: PLAN
-Break the spec into executable phases with success criteria.
+Break the spec into executable phases with success criteria. Run Devil's Advocate against the plan using 6 attack vectors (Logic, Audience, Execution, Competition, Worst Case, Scale) with a risk matrix. Any risk scoring 15+ (Likelihood x Impact) must have a mitigation plan before execution begins.
 
 **Inputs:** Approved spec outputs, codebase analysis, ratchet thresholds, capability registry
 **Outputs:** Phase plan (with Capabilities Used section), fitness functions, research briefs (if needed)
@@ -56,7 +70,7 @@ Build what was planned. One phase at a time. Atomic commits. TDD-enforced. Evide
 **Agents:** `agents/executor.md` (standard), `agents/subagent-executor.md` (parallel), `agents/debugger.md` (on failure)
 
 ### Phase 4: AUDIT
-Independent review across 6 categories. Parallel-runnable. Each category produces an independent verdict.
+Independent review across 6 categories. Parallel-runnable. Each category produces an independent verdict. Includes an **Outcome Verification Gate** that checks whether the built thing actually delivers what the Outcome Formula (or PRD) defined — code quality alone is not sufficient.
 
 **Inputs:** All changes from Execute phase, ratchet state, fitness results, capability registry, capability utilization report
 **Outputs:** Audit report per category, summary with GO/NO-GO verdict
@@ -110,6 +124,16 @@ Learn from the cycle. Tighten thresholds. Track velocity. Record decisions.
 - Cycle time is tracked but NOT auto-tightened — it's a diagnostic signal, not a quality gate
 
 **Templates:** `templates/ratchet/ratchet-entry.md`, `templates/ratchet/rule-proposal.md`, `templates/ratchet/retrospective.md`
+
+### Phase 6: PRODUCTIZE (Optional Post-Ratchet)
+Evaluate every completed SPEAR cycle for revenue potential. Score the work on 7 criteria (Repeatable, Transferable, Domain-Specific, Data-Clean, Better Than Free, Demonstrable, Stackable). GREEN (50+/70) = build the product. YELLOW (35-49) = refine first. RED (<35) = keep internal.
+
+Inspired by Project Ignition Pillar 8 (Rico Williams, UDIG Solutions). Integrated April 2026.
+
+**Inputs:** Completed ratchet, audit results, the built product/feature
+**Outputs:** Productization score, product form recommendation, competitive quick-scan, pricing estimate
+**Gate:** Score threshold (50+ for GREEN). Competitive quick-scan must not reveal dominant competitor with identical approach.
+**Method:** 7-criteria filter → product form selection → competitive scan → pricing → entity routing
 
 ---
 
@@ -225,7 +249,8 @@ SPEAR is AI-tool-agnostic at its core. Adapters translate SPEAR concepts into to
 
 ---
 
-*SPEAR v2.2.0 — Created by Miguel Jiminez*
+*SPEAR v2.3.0 — Created by Miguel Jiminez*
+*v2.3: Ignition Integration — pre-spec intent clarification (Outcome Formula, key questions, role assignment, first principles), constraints-first design, format specification, 6 attack vector risk matrix, outcome verification audit gate, productize phase. Inspired by Project Ignition (Rico Williams, UDIG Solutions).*
 *v2.2: Unified Capability Registry — all phases discover and route through skills, agents, MCP tools, and dependencies*
 *v2.1: Musk 5-Step Integration — requirement challenge gate, deletion audit, simplification pass, cycle time tracking*
 *v2.0: TDD enforcement, verification gates, Socratic specs, systematic debugging, subagent execution, parallel dispatch, worktree isolation*
