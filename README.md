@@ -12,9 +12,9 @@
 
 <br /><br />
 
-<img src="https://img.shields.io/badge/version-2.2.0-4d8dff?style=flat-square" alt="v2.2.0" />&nbsp;
-<img src="https://img.shields.io/badge/phases-5-4d8dff?style=flat-square" alt="5 Phases" />&nbsp;
-<img src="https://img.shields.io/badge/agents-14-4d8dff?style=flat-square" alt="14 Agents" />&nbsp;
+<img src="https://img.shields.io/badge/version-2.3.0-4d8dff?style=flat-square" alt="v2.3.0" />&nbsp;
+<img src="https://img.shields.io/badge/phases-7-4d8dff?style=flat-square" alt="7 Phases" />&nbsp;
+<img src="https://img.shields.io/badge/agents-15-4d8dff?style=flat-square" alt="15 Agents" />&nbsp;
 <img src="https://img.shields.io/badge/audit%20categories-7-4d8dff?style=flat-square" alt="7 Audit Categories" />&nbsp;
 <img src="https://img.shields.io/badge/SAST-CodeQL%20%2B%20Semgrep-4d8dff?style=flat-square" alt="SAST Integration" />&nbsp;
 <img src="https://img.shields.io/badge/AI%20tools-6-4d8dff?style=flat-square" alt="6 AI Tools" />&nbsp;
@@ -24,7 +24,7 @@
 <br /><br />
 
 **A spec-driven, audit-gated, self-improving development methodology for AI-assisted workflows.**<br />
-Five phases. Seven audit categories. Browser automation. Integrated SAST. One direction: forward.
+Seven phases. Seven audit categories. Competitive intelligence. Browser automation. SAST. One direction: forward.
 
 <br />
 
@@ -61,19 +61,23 @@ AI coding tools are powerful but chaotic. Without structure, they produce code t
 SPEAR is a drop-in methodology that adds structure, audit gates, and a learning ratchet to any AI-assisted workflow.
 
 ```
-┌──────┐    ┌──────┐    ┌─────────┐    ┌───────┐    ┌─────────┐
-│ SPEC │───>│ PLAN │───>│ EXECUTE │───>│ AUDIT │───>│ RATCHET │
-└──────┘    └──────┘    └─────────┘    └───────┘    └─────────┘
+┌────────┐    ┌──────┐    ┌──────┐    ┌─────────┐    ┌───────┐    ┌─────────┐    ┌─────────────┐
+│ IGNITE │───>│ SPEC │───>│ PLAN │───>│ EXECUTE │───>│ AUDIT │───>│ RATCHET │───>│ PRODUCTIZE  │
+└────────┘    └──────┘    └──────┘    └─────────┘    └───────┘    └─────────┘    └─────────────┘
 ```
 
 <table>
 <tr>
-<td width="60"><b>S</b></td>
-<td><b>Spec</b> — Socratic questioning to define what and why. One question at a time. Design validation before approval.</td>
+<td width="60"><b>I</b></td>
+<td><b>Ignite</b> — Pre-spec intent clarification. Understand the real problem before defining the solution.</td>
+</tr>
+<tr>
+<td><b>S</b></td>
+<td><b>Spec</b> — Socratic questioning to define what and why. Competitive research integration. Design validation before approval.</td>
 </tr>
 <tr>
 <td><b>P</b></td>
-<td><b>Plan</b> — Break into phases with fitness functions and success criteria.</td>
+<td><b>Plan</b> — Break into phases with fitness functions, competitor analysis, and success criteria.</td>
 </tr>
 <tr>
 <td><b>E</b></td>
@@ -86,6 +90,10 @@ SPEAR is a drop-in methodology that adds structure, audit gates, and a learning 
 <tr>
 <td><b>R</b></td>
 <td><b>Ratchet</b> — Tighten thresholds, generate rules, remember decisions. Quality only goes up.</td>
+</tr>
+<tr>
+<td><b>P</b></td>
+<td><b>Productize</b> — Post-ratchet productization. Packaging, distribution, and market readiness.</td>
 </tr>
 </table>
 
@@ -178,6 +186,9 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 <tr><td><b>Fitness Functions</b></td><td>Automated metric checks against ratchet thresholds</td></tr>
 <tr><td><b>Project Memory</b></td><td>Decisions, patterns, and findings persist across cycles</td></tr>
 <tr><td><b>Pre-commit Hooks</b></td><td>Secrets scan, lint, tests, dependency audit — zero-dep bash</td></tr>
+<tr><td><b>Ignite Phase</b></td><td>Pre-spec intent clarification. Understand the real problem before defining any solution.</td></tr>
+<tr><td><b>Productize Phase</b></td><td>Post-ratchet packaging, distribution prep, and go-to-market readiness.</td></tr>
+<tr><td><b>Competitor Research</b></td><td>Built-in competitor landscape scanning before spec. Know the field before you build.</td></tr>
 <tr><td><b>AI-Agnostic Core</b></td><td>One framework, six tool adapters, works with anything</td></tr>
 </table>
 
@@ -242,7 +253,7 @@ cat .spear/ratchet/ratchet.json
 │   ├── execute/           <- Task commit, deviation log, checkpoint, TDD cycle
 │   ├── audit/             <- Audit report, summary, finding
 │   └── ratchet/           <- Ratchet entry, rule proposal, retrospective
-├── agents/                <- 14 AI agent role definitions
+├── agents/                <- 15 AI agent role definitions
 │   ├── spec-writer.md     <- Socratic questioning + design validation
 │   ├── executor.md        <- TDD-enforced + verification gate + worktree
 │   ├── subagent-executor  <- Parallel task dispatch + two-stage review
@@ -250,6 +261,7 @@ cat .spear/ratchet/ratchet.json
 │   ├── planner.md         <- Phase planning + fitness functions
 │   ├── verifier.md        <- Phase + project verification
 │   ├── ratchet-engine.md  <- Threshold management + retrospectives
+│   ├── competitor-researcher.md <- Competitor landscape + gap identification
 │   └── audit-*.md         <- 7 independent audit category agents
 ├── ratchet/               <- Threshold state + history + rules
 ├── output/                <- Phase output artifacts
