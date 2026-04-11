@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.4.0] - 2026-04-11
+
+### Added
+- **Deep Dependency Analysis** — Every spec now MUST include a Dependency Audit Table: version pins, license compatibility check, CVE scan results, transitive dep count, maintenance risk assessment. System dependencies (OS packages, native libs, runtimes) also mandatory.
+- **Compliance Gate** — Mandatory 4-category compliance evaluation in every spec: App Store (Apple/Google guidelines, IAP, privacy labels), Regulatory (GDPR, CCPA, COPPA, WCAG AA, HIPAA, PCI-DSS), Security (OWASP Top 10, auth, encryption, secrets), License (copyleft detection, attribution, export controls). Each category marked PASS/N/A/NEEDS REVIEW.
+- **Arsenal Discovery** — Dynamic scan of ALL available skills, agents, and MCP tools during spec phase. Relevance scoring (0-10) per capability. Produces a Recommended Arsenal section that the Planner consumes directly — no more hardcoded tool-matching rules.
+- **Planner Dependency/Compliance Integration** — Planner now injects dependency audit tasks when phases introduce new deps, and compliance verification tasks where the spec flagged requirements. New checklist items enforce this.
+
+### Changed
+- Spec Writer agent: new steps 14-17 (dependency analysis + compliance analysis) before spec writing
+- Spec Writer checklist: 6 new mandatory items for dependency/compliance/arsenal
+- Planner agent: new "Dependency & Compliance Integration" checklist section
+- PRD template: expanded Dependencies section with audit table, license compatibility, system deps; added Compliance Requirements and Recommended Arsenal sections
+- Claude Code adapter `/spec` command: new Steps 5c (dependency), 5d (compliance), 5e (arsenal)
+- Docs phase guide `01-spec.md`: new sections documenting dependency, compliance, and arsenal features
+- Version: 2.3.0 → 2.4.0
+
 ## [2.3.0] - 2026-04-02
 
 ### Added

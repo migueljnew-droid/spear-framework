@@ -131,6 +131,42 @@ Group them by category:
 Number every question. Wait for answers before proceeding.
 If the request is already fully specified, confirm your understanding and proceed.
 
+## Step 5c: Deep Dependency Analysis (MANDATORY)
+
+Scan the project for ALL dependency manifests (Cargo.toml, package.json, Podfile,
+requirements.txt, pyproject.toml, go.mod, etc.).
+
+For EVERY new dependency the feature requires:
+- Pin exact version or acceptable range
+- Check license compatibility (MIT/Apache=safe, GPL/LGPL/AGPL=FLAG for proprietary)
+- Run CVE scan (`cargo audit` / `npm audit` / `pip-audit` / equivalent)
+- Count transitive dependencies and assess risk
+- Check maintenance status (last release, bus factor)
+
+For system dependencies: list OS packages, build tools, runtimes needed.
+Produce a **Dependency Audit Table** in the PRD.
+
+## Step 5d: Compliance Analysis (MANDATORY)
+
+Evaluate ALL compliance categories — mark N/A with reason if not applicable:
+- **App Store**: Apple/Google review guidelines, IAP rules, privacy labels, entitlements
+- **Regulatory**: GDPR, CCPA, COPPA, ADA/WCAG (AA minimum), HIPAA, PCI-DSS, SOC2
+- **Security**: OWASP Top 10, auth model, encryption, secret management, input validation
+- **License**: All deps compatible, no copyleft contamination, attribution, export controls
+
+Produce a **Compliance Requirements** section in the PRD.
+
+## Step 5e: Full Arsenal Discovery (MANDATORY)
+
+The Capability Registry (Step 1) already scanned available tools. Now **score and assign**
+them to the spec:
+- For each registered capability, score relevance (0-10) against this spec's domain
+- Include anything scoring 5+
+- Map to specific phases/tasks where they should be used
+- Produce a **Recommended Arsenal** section with Skills, Agents, and MCP tables
+
+This feeds directly into the Planner's capability assignment step.
+
 ## Step 6: Identify Unknowns
 
 If anything requires technical investigation (library capabilities, API limits,
@@ -210,13 +246,21 @@ Before presenting outputs, verify:
 - [ ] Simplification pass applied to surviving scope
 - [ ] Order enforced: challenge → delete → simplify → specify
 
+### Dependency & Compliance Gate (Steps 5c-5e)
+- [ ] Dependency Audit Table complete — every dep has version, license, CVE status, risk
+- [ ] License compatibility verified — no copyleft contamination in proprietary code
+- [ ] CVE scan run — cargo audit / npm audit / pip-audit executed, results documented
+- [ ] System dependencies listed — OS packages, native libs, runtimes
+- [ ] Compliance section fully evaluated — App Store, Regulatory, Security, License (each PASS/N/A/NEEDS REVIEW)
+- [ ] Recommended Arsenal populated — best skills, agents, MCPs identified with relevance scores
+
 ### Spec Quality
 - [ ] Problem is clearly stated with concrete impact
 - [ ] Goals are testable -- each has a yes/no verification method
 - [ ] Non-goals explicitly exclude adjacent scope
 - [ ] Acceptance criteria are measurable and independently verifiable
 - [ ] Architecture references existing codebase patterns (or justifies new ones)
-- [ ] All dependencies identified (internal and external)
+- [ ] All dependencies identified with full audit table
 - [ ] Open questions have owners and indicate what they block
 - [ ] Research briefs created for unresolved unknowns
 - [ ] Specs are written so someone without context can implement them

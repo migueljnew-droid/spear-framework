@@ -83,11 +83,72 @@ epic: "[EPIC-ID]"
 - **Data:** [e.g., Must handle 10K concurrent users]
 - **Other:** [Any additional technical requirements]
 
-## Dependencies
+## Dependencies (Full Analysis)
 
+### Dependency Summary
 | Dependency | Type | Owner | Status | Risk |
 |-----------|------|-------|--------|------|
 | [Service/Library/Team] | blocks/soft | [who] | [ready/in-progress/unknown] | [low/med/high] |
+
+### Dependency Audit Table
+| Dependency | Version | License | CVE Status | Transitive Deps | Maintenance | Risk |
+|-----------|---------|---------|------------|-----------------|-------------|------|
+| [name]    | [ver]   | [MIT/Apache/etc] | [clean/CVE-XXXX] | [count] | [active/stale/abandoned] | [low/med/high] |
+
+### License Compatibility
+- **Project license:** [e.g., LicenseRef-Proprietary / MIT / Apache-2.0]
+- **Conflicts found:** [none / list with resolution]
+
+### System Dependencies
+- [OS packages, native libraries, build tools, runtimes required]
+
+## Compliance Requirements
+
+### App Store Compliance
+<!-- Mark N/A with reason if not a mobile/desktop app -->
+- [ ] Apple App Store Review Guidelines adherence
+- [ ] Google Play Store policies adherence
+- [ ] Privacy nutrition labels / Data Safety accuracy
+- [ ] Required entitlements and capabilities declared
+- **Status:** [N/A — reason / PASS / NEEDS REVIEW: items]
+
+### Regulatory Compliance
+- [ ] GDPR / data privacy
+- [ ] CCPA / state privacy laws
+- [ ] COPPA (if minors may use)
+- [ ] ADA / WCAG accessibility (AA minimum)
+- [ ] Industry-specific (HIPAA, PCI-DSS, SOC2)
+- **Applicable frameworks:** [list or N/A with reason]
+
+### Security Compliance
+- [ ] OWASP Top 10 addressed
+- [ ] Authentication/authorization model defined
+- [ ] Data encryption at rest and in transit
+- [ ] Secret management (no hardcoded credentials)
+- [ ] Input validation and output encoding
+
+### License Compliance
+- [ ] All dependency licenses compatible
+- [ ] No copyleft contamination in proprietary code
+- [ ] Attribution requirements documented
+- [ ] Export control considerations
+
+## Recommended Arsenal
+
+### Skills
+| Skill | Relevance | When to Use |
+|-------|-----------|-------------|
+| [skill-name] | [score/10] | [which phase/task] |
+
+### Agents
+| Agent | Specialization | When to Use |
+|-------|---------------|-------------|
+| [agent-name] | [what it does] | [which phase/task] |
+
+### MCP Tools
+| MCP | Tool | When to Use |
+|-----|------|-------------|
+| [mcp-name] | [tool] | [which phase/task] |
 
 ## Open Questions
 

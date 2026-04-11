@@ -188,6 +188,69 @@ Always specify:
 - Security requirements (OWASP, encryption standards)
 - What is explicitly out of scope
 
+---
+
+## Dependency Deep-Dive (v2.4.0+)
+
+Every spec MUST include a **Dependency Audit Table**. This is not optional — it prevents supply chain attacks, license contamination, and abandoned-dep disasters.
+
+For EVERY dependency (new or touched):
+
+| Column | What to Fill |
+|--------|-------------|
+| **Version** | Exact version or range (e.g., `^1.4.0`, `=2.1.3`) |
+| **License** | MIT, Apache-2.0, BSD = safe. GPL/LGPL/AGPL = FLAG for proprietary projects |
+| **CVE Status** | Run `cargo audit` / `npm audit` / `pip-audit`. Document clean or list CVEs |
+| **Transitive Deps** | How many sub-deps does this pull in? More = more risk |
+| **Maintenance** | Last release date, open issues, bus factor (solo maintainer = risk) |
+| **Risk** | Overall: low / medium / high |
+
+Also list **system dependencies** (OS packages, native libs, runtimes).
+
+---
+
+## Compliance Analysis (v2.4.0+)
+
+Every spec MUST evaluate compliance across four categories. Mark N/A with reason if not applicable.
+
+### App Store (mobile/desktop apps)
+- Apple App Store Review Guidelines
+- Google Play Developer Policy
+- IAP rules (30% cut, no external payment links)
+- Privacy nutrition labels / Data Safety sections
+- Required entitlements and capabilities
+
+### Regulatory
+- GDPR (EU users, data collection, consent, right to delete)
+- CCPA (California users, data sale)
+- COPPA (children under 13)
+- ADA/WCAG (accessibility, minimum AA)
+- Industry: HIPAA, PCI-DSS, SOC2
+
+### Security
+- OWASP Top 10 coverage
+- Auth model defined
+- Encryption at rest + transit
+- Secret management (never hardcoded)
+- Input validation + output encoding
+
+### License
+- All dependency licenses compatible with project license
+- No copyleft contamination
+- Attribution requirements documented
+- Export control (cryptography)
+
+---
+
+## Arsenal Discovery (v2.4.0+)
+
+Every spec MUST scan all available capabilities and produce a **Recommended Arsenal** section:
+
+1. Score each available skill/agent/MCP against the spec's domain (0-10)
+2. Include anything scoring 5+
+3. Map to specific phases/tasks
+4. The Planner consumes this section — no more guessing at tool assignment
+
 ### 4. Scope creep in the spec itself
 
 If you find yourself writing "and we should also..." — stop. Create a separate spec. One spec, one feature boundary.

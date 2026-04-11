@@ -12,7 +12,7 @@
 
 <br /><br />
 
-<img src="https://img.shields.io/badge/version-2.3.0-4d8dff?style=flat-square" alt="v2.3.0" />&nbsp;
+<img src="https://img.shields.io/badge/version-2.4.0-4d8dff?style=flat-square" alt="v2.4.0" />&nbsp;
 <img src="https://img.shields.io/badge/phases-7-4d8dff?style=flat-square" alt="7 Phases" />&nbsp;
 <img src="https://img.shields.io/badge/agents-15-4d8dff?style=flat-square" alt="15 Agents" />&nbsp;
 <img src="https://img.shields.io/badge/audit%20categories-7-4d8dff?style=flat-square" alt="7 Audit Categories" />&nbsp;
@@ -186,6 +186,9 @@ SPEAR is AI-agnostic at its core. Adapters translate the methodology into each t
 <tr><td><b>Fitness Functions</b></td><td>Automated metric checks against ratchet thresholds</td></tr>
 <tr><td><b>Project Memory</b></td><td>Decisions, patterns, and findings persist across cycles</td></tr>
 <tr><td><b>Pre-commit Hooks</b></td><td>Secrets scan, lint, tests, dependency audit — zero-dep bash</td></tr>
+<tr><td><b>Deep Dependency Analysis</b></td><td>Full audit table per spec: version pins, license compatibility, CVE scan, transitive deps, maintenance risk.</td></tr>
+<tr><td><b>Compliance Gate</b></td><td>Mandatory evaluation: App Store guidelines, GDPR/CCPA/COPPA, OWASP Top 10, license compatibility. PASS/N/A/NEEDS REVIEW per category.</td></tr>
+<tr><td><b>Arsenal Discovery</b></td><td>Dynamic scan of ALL skills, agents, MCPs. Relevance scoring. Best tools auto-assigned to phases — never hardcoded subsets.</td></tr>
 <tr><td><b>Ignite Phase</b></td><td>Pre-spec intent clarification. Understand the real problem before defining any solution.</td></tr>
 <tr><td><b>Productize Phase</b></td><td>Post-ratchet packaging, distribution prep, and go-to-market readiness.</td></tr>
 <tr><td><b>Competitor Research</b></td><td>Built-in competitor landscape scanning before spec. Know the field before you build.</td></tr>

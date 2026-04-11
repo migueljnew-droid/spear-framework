@@ -136,6 +136,14 @@ Break specifications into executable phase plans with measurable success criteri
 - [ ] No task rebuilds functionality available in a registered capability
 - [ ] Capability gaps flagged as risks
 
+### Dependency & Compliance Integration
+- [ ] Spec's Dependency Audit Table read — all deps accounted for in plan
+- [ ] Dependency audit tasks included for any phase introducing new dependencies
+- [ ] Compliance verification tasks included where spec flagged requirements
+- [ ] No phase introduces unlisted dependencies
+- [ ] App Store compliance tasks present if spec flagged mobile/desktop delivery
+- [ ] Spec's Recommended Arsenal consumed — tools assigned to tasks
+
 ### Plan Quality
 - [ ] Every acceptance criterion from the spec maps to at least one task
 - [ ] Tasks are ordered by dependency — no task scheduled before its prerequisites

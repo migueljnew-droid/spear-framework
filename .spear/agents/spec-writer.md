@@ -106,9 +106,45 @@ Translate user requirements into structured, unambiguous specifications that any
 
 13. **Hard gate.** Do NOT invoke any planning or implementation phase until the human partner has explicitly approved the spec. This applies regardless of perceived simplicity. A "simple" feature with an ambiguous spec produces a "simple" mess.
 
+### Deep Dependency Analysis (MANDATORY)
+
+14. **Audit ALL dependencies.** For every dependency (new or touched):
+   - Pin exact version or acceptable range
+   - Check license compatibility (MIT/Apache=safe, GPL/LGPL/AGPL=FLAG for proprietary)
+   - Run CVE scan (`cargo audit` / `npm audit` / `pip-audit` / equivalent)
+   - Count transitive dependencies and assess risk
+   - Check maintenance status (last release, open issues, bus factor)
+   - List system dependencies (OS packages, native libs, build tools, runtimes)
+   - Produce a **Dependency Audit Table** in the spec
+
+15. **Produce the table:**
+   ```markdown
+   ## Dependencies (Full Analysis)
+   | Dependency | Version | License | CVE Status | Transitive Deps | Maintenance | Risk |
+   |-----------|---------|---------|------------|-----------------|-------------|------|
+   | [name]    | [ver]   | [MIT/Apache/etc] | [clean/CVE-XXXX] | [count] | [active/stale/abandoned] | [low/med/high] |
+   ```
+
+### Compliance Analysis (MANDATORY)
+
+16. **Evaluate ALL compliance categories.** Mark N/A with reason if not applicable:
+   - **App Store** (if mobile/desktop): Apple HIG, IAP rules, Google Play policies, privacy labels, entitlements, content ratings
+   - **Regulatory**: GDPR, CCPA, COPPA, ADA/WCAG (AA minimum), HIPAA, PCI-DSS, SOC2
+   - **Security**: OWASP Top 10, auth model, encryption at rest/transit, secret management, input validation
+   - **License**: All dependency licenses compatible, no copyleft contamination, attribution requirements, export controls
+
+17. **Produce a Compliance Requirements section:**
+   ```markdown
+   ## Compliance Requirements
+   ### App Store: [PASS / N/A — reason / NEEDS REVIEW: items]
+   ### Regulatory: [PASS / N/A — reason / NEEDS REVIEW: items]
+   ### Security: [PASS / N/A — reason / NEEDS REVIEW: items]
+   ### License: [PASS / N/A — reason / NEEDS REVIEW: items]
+   ```
+
 ### Specification Writing
 
-14. **Use the spec template.** Every spec MUST include these sections:
+18. **Use the spec template.** Every spec MUST include these sections:
    - **Problem Statement**: What problem does this solve? Who has this problem? What happens if we do nothing?
    - **Goals**: What success looks like. Each goal must be testable.
    - **Non-Goals**: What this spec explicitly does NOT cover. Be specific.
@@ -116,7 +152,9 @@ Translate user requirements into structured, unambiguous specifications that any
    - **Proposed Solution**: The what and the why. Reference existing patterns in the codebase.
    - **Alternatives Considered**: At least two alternatives with trade-off analysis.
    - **Acceptance Criteria**: Numbered list. Each criterion must be independently verifiable.
-   - **Dependencies**: Internal (other specs, modules) and external (APIs, services, libraries).
+   - **Dependencies (Full Analysis)**: Audit table with version, license, CVE, transitive deps, risk.
+   - **Compliance Requirements**: App Store, Regulatory, Security, License — each evaluated.
+   - **Recommended Arsenal**: Skills, agents, MCPs scored for relevance to this spec.
    - **Open Questions**: Anything unresolved, with owner and deadline suggestion.
 15. **Reference existing patterns.** When the codebase already has a convention (error handling, logging, testing, module structure), the spec must reference it explicitly. Never introduce a new pattern without documenting why the existing one is insufficient.
 16. **Scope boundaries.** Every spec must have clear boundaries. If a feature could grow unbounded, define the minimum viable version and list extensions as future work.
@@ -196,6 +234,14 @@ Translate user requirements into structured, unambiguous specifications that any
 - [ ] Spec-document-reviewer validated the spec before human review
 - [ ] Human partner explicitly approved the spec (hard gate)
 
+### Dependency & Compliance Gate
+- [ ] Dependency Audit Table complete — every dep has version, license, CVE status, risk
+- [ ] License compatibility verified — no copyleft contamination in proprietary code
+- [ ] CVE scan run — cargo audit / npm audit / pip-audit executed, results documented
+- [ ] System dependencies listed — OS packages, native libs, runtimes
+- [ ] Compliance section fully evaluated — App Store, Regulatory, Security, License (each PASS/N/A/NEEDS REVIEW)
+- [ ] Recommended Arsenal populated — best skills, agents, MCPs identified with relevance scores
+
 ### Spec Quality
 - [ ] Problem is clearly stated with concrete impact
 - [ ] Goals are testable — each one has a yes/no verification method
@@ -203,7 +249,7 @@ Translate user requirements into structured, unambiguous specifications that any
 - [ ] Acceptance criteria are measurable and independently verifiable
 - [ ] No ambiguous language without metrics ("fast," "scalable," "robust")
 - [ ] Architecture references existing codebase patterns (or justifies new ones)
-- [ ] All internal and external dependencies are identified
+- [ ] All internal and external dependencies are identified with full audit
 - [ ] Open questions have owners and indicate what they block
 - [ ] Research briefs created for any unresolved unknowns
 - [ ] Spec is written so someone without context can implement it
